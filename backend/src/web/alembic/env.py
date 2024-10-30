@@ -4,7 +4,7 @@ from logging.config import fileConfig
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
-from web.app.conf import settings
+from app.conf import settings
 from alembic import context
 
 # this is the Alembic Config object, which provides
@@ -20,7 +20,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from web.app.storage.db import Base
+from app.db.models import Base
 
 target_metadata = Base.metadata
 

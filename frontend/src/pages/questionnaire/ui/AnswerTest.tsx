@@ -1,16 +1,14 @@
-import styles from "./WelcomeTest.module.scss";
-import {useNavigate} from "react-router-dom"
+import styles from "./AnswerTest.module.scss";
 import { Header } from "../../../widgets/header";
 import HeaderText from "./mainTextOfPage/MainTextOfPage";
 
 export const WelcomeTest = () => {
-	const navigate = useNavigate()
 
   return (
     <>
       <Header />
       <div>
-				<HeaderText text={'Какое направление в IT выбрать?'} />
+				<HeaderText text={'Ваш результат:'} />
       </div>
 
       <div className={styles.mainText}>
@@ -21,12 +19,6 @@ export const WelcomeTest = () => {
 				<p className={styles.text}>
 					Пройдите тест и узнайте, какие профессии в IT подходят именно вам.
         </p>
-      </div>
-
-      <div className={styles.buttonContainer}>
-        <button className={styles.startButton} onClick={() => navigate('/test')}>
-          Начать
-        </button>
       </div>
     </>
   );

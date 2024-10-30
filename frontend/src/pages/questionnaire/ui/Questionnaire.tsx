@@ -3,10 +3,13 @@ import styles from "./Questionnaire.module.scss";
 import { Header } from "../../../widgets/header";
 import CircleToggle from "./circleToggle/CircleToggle";
 import { data } from "../api/getRequestion";
+import {useNavigate} from "react-router-dom"
 import prevButtonSvg from "../../../assets/prevButton.svg";
 import HeaderText from "./mainTextOfPage/MainTextOfPage";
 
 export const Questionnaire = () => {
+	const navigate = useNavigate();
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const totalQuestions = data.total_questions;
   const [answers, setAnswers] = useState<string[]>(Array(totalQuestions).fill(''));
@@ -14,6 +17,8 @@ export const Questionnaire = () => {
   const handleNextQuestion = () => {
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      navigate("/answer_test");
     }
   };
 

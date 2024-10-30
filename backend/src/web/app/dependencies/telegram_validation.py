@@ -4,9 +4,10 @@ import hmac
 import json
 from urllib.parse import unquote, parse_qsl
 from fastapi.exceptions import HTTPException
-from backend.web import settings
-from backend.web import TelegramData, TelegramUser
+from ..settings import settings
+from ..schemas.telegram_data import TelegramData, TelegramUser
 from typing import Annotated
+from fastapi import Body
 
 
 class TelegramInitDataAbsenceException(Exception):
@@ -18,9 +19,7 @@ class TelegramInitData:
     def __init__(self, telegram_token: str):
         self._telegram_token = telegram_token
 
-    def __call__(self, init_data: str = None,
-                 init_data_form: Annotated[str | None, Form(alias='init_data')] = None) -> TelegramData:
-        init_data = init_data if init_data else init_data_form
+    def __call__(self, init_data: Annotated[str, Body()]) -> TelegramData:
         if init_data is None:
             raise TelegramInitDataAbsenceException
 
@@ -36,7 +35,6 @@ class TelegramInitData:
             secret_key, data_check_string.encode(), hashlib.sha256
         ).hexdigest()
 
-
         if computed_hash != received_hash:
             raise TelegramInitDataAbsenceException
 
@@ -45,6 +43,4 @@ class TelegramInitData:
         return TelegramData(**parsed_data, user=TelegramUser(**user))
 
 
-
-
-get_telegram_data = TelegramInitData(telegram_token=settings.telegram.token.get_secret_value())
+get_telegram_data = TelegramInitData(telegram_token=settings.TELEGRAM_TOKEN)

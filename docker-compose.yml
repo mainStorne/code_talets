@@ -43,6 +43,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx:/etc/nginx
+      - ./backend/src/web/app/static:/www/data
     depends_on:
       - server
       - frontend

@@ -1,82 +1,55 @@
-from typing import Type
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status
+from pydantic import ValidationError
+from redis.asyncio import Redis
 
-from fastapi_users import exceptions, models, schemas
-from fastapi_users.manager import BaseUserManager, UserManagerDependency
-from fastapi_users.router.common import ErrorCode, ErrorModel
-from ...exceptions import RoleDoesntExist, ErrorCodes
+from ...db.models import UserResume
+from ...schemas.users import BaseUser, ReadUser
+from ...dependencies.redis import get_redis
+from ...dependencies.session import get_session
+from ...dependencies.user import get_current_user
+from ...dependencies.telegram_validation import get_telegram_data
+from ...schemas.telegram_data import TelegramData
+from ...storage.db.adapters.base import BaseAdapter
+from fastapi.encoders import jsonable_encoder
+from ...db.models.users import User
+from ...managers.user import UserManager
+from ...schemas.resumes import ResumeRead
+from ...db.adapters.redis_client import RedisClient
+
+r = APIRouter()
+m = UserManager(User)
 
 
-def get_register_router(
-        get_user_manager: UserManagerDependency[models.UP, models.ID],
-        user_schema: Type[schemas.U],
-        user_create_schema: Type[schemas.UC],
-) -> APIRouter:
-    """Generate a router with the register route."""
-    router = APIRouter()
+def checker(data: str = Form(...)):
+    try:
+        return BaseUser.model_validate_json(data)
+    except ValidationError as e:
+        raise HTTPException(
+            detail=jsonable_encoder(e.errors()),
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        )
 
-    @router.post(
-        "/register",
-        response_model=user_schema,
-        status_code=status.HTTP_201_CREATED,
-        name="register:register",
-        responses={
-            status.HTTP_400_BAD_REQUEST: {
-                "model": ErrorModel,
-                "content": {
-                    "application/json": {
-                        "examples": {
-                            ErrorCode.REGISTER_USER_ALREADY_EXISTS: {
-                                "summary": "A user with this email already exists.",
-                                "value": {
-                                    "detail": ErrorCode.REGISTER_USER_ALREADY_EXISTS
-                                },
-                            },
-                            ErrorCode.REGISTER_INVALID_PASSWORD: {
-                                "summary": "Password validation failed.",
-                                "value": {
-                                    "detail": {
-                                        "code": ErrorCode.REGISTER_INVALID_PASSWORD,
-                                        "reason": "Password should be"
-                                                  "at least 3 characters",
-                                    }
-                                },
-                            },
-                        }
-                    }
-                },
-            },
-        },
-    )
-    async def register(
-            request: Request,
-            user_create: user_create_schema,  # type: ignore
-            user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
-    ):
-        try:
-            created_user = await user_manager.create(
-                user_create, safe=True, request=request
-            )
-        except exceptions.UserAlreadyExists:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=ErrorCode.REGISTER_USER_ALREADY_EXISTS,
-            )
-        except RoleDoesntExist:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=ErrorCodes.ROLE_DOESNT_EXIST,
-            )
-        except exceptions.InvalidPasswordException as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "code": ErrorCode.REGISTER_INVALID_PASSWORD,
-                    "reason": e.reason,
-                },
-            )
 
-        return schemas.model_validate(user_schema, created_user)
+@r.post('/register', response_model=ReadUser)
+async def register(user: BaseUser, session=Depends(get_session),
+                   telegram: TelegramData = Depends(get_telegram_data),
+                   redis: RedisClient = Depends(get_redis)
+                   ):
+    user = ReadUser(**user.model_dump(), id=telegram.user.id)
+    response = await m.create(session, user)
+    link = f'https://t.me/{telegram.user.username}'
+    await redis.xsend(telegram.user.id,
+                      {'telegram_link': link, **user.model_dump(exclude={'is_superuser', 'work_experience'})})
+    return response
 
-    return router
+
+@r.post('/upload', response_model=ResumeRead)
+async def upload(file: UploadFile = File(),
+                 session=Depends(get_session),
+                 user: User = Depends(get_current_user(False)),
+                 redis: RedisClient = Depends(get_redis)):
+    resume: UserResume = await m.create_resume(session, user.id, file)
+    return resume
+    # await redis.xsend(user.id, {''})

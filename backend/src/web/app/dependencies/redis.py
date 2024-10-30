@@ -1,5 +1,5 @@
 from ..db.adapters.redis_client import RedisClient
-from web.app.conf import connection_pool
+from ..conf import connection_pool
 
 
 async def get_redis():
