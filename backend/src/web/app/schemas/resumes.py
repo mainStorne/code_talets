@@ -4,7 +4,7 @@ class Resume(BaseModel):
     resume_url: str
 
 
-class ResumeRead(BaseModel):
+class ResumeRead(Resume):
     user_id: int
 
 

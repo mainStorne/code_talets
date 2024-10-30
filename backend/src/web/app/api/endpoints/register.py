@@ -40,16 +40,18 @@ async def register(user: BaseUser, session=Depends(get_session),
     user = ReadUser(**user.model_dump(), id=telegram.user.id)
     response = await m.create(session, user)
     link = f'https://t.me/{telegram.user.username}'
+    user_datatime = user.created_at
+
     await redis.xsend(telegram.user.id,
-                      {'telegram_link': link, **user.model_dump(exclude={'is_superuser', 'work_experience'})})
+                      {'timestamp': user_datatime.timestamp(), 'telegram_link': link,
+                       **user.model_dump(exclude={'created_at', 'is_superuser', 'work_experience', 'id'})})
     return response
 
 
 @r.post('/upload', response_model=ResumeRead)
 async def upload(file: UploadFile = File(),
                  session=Depends(get_session),
-                 user: User = Depends(get_current_user(False)),
-                 redis: RedisClient = Depends(get_redis)):
+                 user: User = Depends(get_current_user),
+                 ):
     resume: UserResume = await m.create_resume(session, user.id, file)
     return resume
-    # await redis.xsend(user.id, {''})

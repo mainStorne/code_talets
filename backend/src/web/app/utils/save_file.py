@@ -7,13 +7,13 @@ from uuid import uuid4
 
 
 def save_file_to_static(file: UploadFile):
-    url = uuid4()
+    url = f'{uuid4()}{file.filename}'
     filename = BASE_PATH / 'static' / url
     try:
-        with open(filename, 'wb') as buffer:
+        with open(f'{filename}', 'wb') as buffer:
             shutil.copyfileobj(file.file, buffer)
     finally:
         file.file.close()
 
-    return f'staticfiles/{url}'
+    return f'/staticfiles/{url}'
 

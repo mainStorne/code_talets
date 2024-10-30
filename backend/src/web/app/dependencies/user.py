@@ -7,11 +7,11 @@ from ..db.adapters.base import BaseAdapter
 from ..db.models.users import User
 
 
-def get_current_user(is_superuser=False):
-    async def wrapper(session: AsyncSession = Depends(get_session),
-                      tg_data: TelegramData = Depends(get_telegram_data)):
-        user = await session.get(User, tg_data.user.id)
-        if user is None or user.is_superuser != is_superuser:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-        return wrapper
+async def get_current_user(session: AsyncSession = Depends(get_session),
+                      tg_data: TelegramData = Depends(get_telegram_data)):
+    user = await session.get(User, tg_data.user.id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    return user
+

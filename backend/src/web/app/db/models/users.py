@@ -21,7 +21,7 @@ class User(IDMixin, Base):
         Boolean, default=False, nullable=False
     )
     age: Mapped[int] = mapped_column(SmallInteger)
-    created_at: Mapped[datetime] = mapped_column(DateTime())
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     city: Mapped[str] = mapped_column(
         String(length=320))
 

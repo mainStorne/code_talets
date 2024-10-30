@@ -2,7 +2,7 @@ from .settings import settings
 import redis.asyncio as redis
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from pathlib import Path
-BASE_PATH = Path(__file__).absolute()
+BASE_PATH = Path(__file__).absolute().parent
 
 SECRET = settings.JWT_PRIVATE_KEY
 engine = create_async_engine(settings.SQLALCHEMY_DATABASE_URL)
