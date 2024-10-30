@@ -14,4 +14,4 @@ COPY --from=builder /opt/venv /opt/venv
 COPY src src
 WORKDIR /src/bot
 ENV PATH="/opt/venv/bin:$PATH"
-CMD ["/venv/bin/python", "-m", "src.bot.bot"]
+CMD ["python", "-m", "main"]

@@ -1,6 +1,5 @@
-from fastapi_users.db import SQLAlchemyBaseUserTable
-from sqlalchemy import Integer, ForeignKey, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Boolean, String
+from sqlalchemy.orm import Mapped, mapped_column
 from .base import Base, IDMixin
 
 
@@ -9,4 +8,5 @@ class User(IDMixin, Base):
     first_name: Mapped[str] = mapped_column(String())
     middle_name: Mapped[str] = mapped_column(String())
     last_name: Mapped[str] = mapped_column(String())
+
 

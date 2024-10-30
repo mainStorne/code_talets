@@ -1,8 +1,9 @@
 from aiogram import Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message
-from backend.bot.src.app.buttons.inline import main_menu
-from backend.bot.src.app.filters.user_filter import HaveUserFilter
+from ..buttons.inline import main_menu
+from ..filters.user_filter import HaveUserFilter
+from ..settings import settings
 
 start_router = Router()
 
@@ -19,7 +20,7 @@ async def cmd_start_already_have_user(message: Message, user):
 async def cmd_start(message: Message):
     await message.answer(
         text='Здравствуйте! Для вашей регистрации пожалуйства нажмите 👇',
-        reply_markup=main_menu('https://musical-pheasant-major.ngrok-free.app')
+        reply_markup=main_menu(settings.DOMAIN_URL)
     )
 
 

@@ -1,10 +1,8 @@
 version: "3"
 
 include:
-#  - path: docker-compose/accounts.yml
-#    project_directory: .
-#  - path: docker-compose/m1m.yml
-#    project_directory: ./backend
+  - path: docker-compose/bot.yml
+    project_directory: .
   - path: docker-compose/server.yml
     project_directory: .
 

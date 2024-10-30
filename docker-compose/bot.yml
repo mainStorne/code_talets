@@ -1,0 +1,22 @@
+
+services:
+
+  bot:
+    build:
+      context: ./backend
+      dockerfile: ./bot.Dockerfile
+    volumes:
+      - ./backend/src/bot:/src/bot
+    env_file:
+      - ./backend/.env
+    environment:
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+
+    depends_on:
+      - redis
+      - postgres
+    container_name: bot
+    expose:
+      - 81
+

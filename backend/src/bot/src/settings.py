@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = 'HS256'
     SQLALCHEMY_DATABASE_URL: str | None = None
     TELEGRAM_TOKEN: str
+    DOMAIN_URL: str
 
 
     @field_validator("SQLALCHEMY_DATABASE_URL", mode="before")
