@@ -32,7 +32,6 @@ def upgrade() -> None:
         session = AsyncSession(bind=connection)
         Factory.__async_session__ = session
         u_factory = Factory.create_factory(User)
-        await u_factory.create_async(id=695473622, is_superuser=True)
 
 
     op.run_async(seed_db)

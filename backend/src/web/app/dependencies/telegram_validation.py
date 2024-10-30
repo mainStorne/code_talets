@@ -19,7 +19,7 @@ class TelegramInitData:
     def __init__(self, telegram_token: str):
         self._telegram_token = telegram_token
 
-    def __call__(self, init_data: Annotated[str, Body()]) -> TelegramData:
+    def __call__(self, init_data: Annotated[str, Body(embed=True)]) -> TelegramData:
         if init_data is None:
             raise TelegramInitDataAbsenceException
 
