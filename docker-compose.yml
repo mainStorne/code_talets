@@ -1,10 +1,8 @@
 version: "3"
 
 include:
-#  - path: docker-compose/accounts.yml
-#    project_directory: .
-#  - path: docker-compose/m1m.yml
-#    project_directory: ./backend
+  - path: docker-compose/bot.yml
+    project_directory: .
   - path: docker-compose/server.yml
     project_directory: .
 
@@ -45,19 +43,24 @@ services:
       - "80:80"
     volumes:
       - ./nginx:/etc/nginx
+    depends_on:
+      - server
+      - frontend
 
   ngrok:
     image: ngrok/ngrok:latest
+    network_mode: host
     container_name: ngrok
     expose:
       - 443
     environment:
       NGROK_AUTHTOKEN: 2ibfdY2tcsIyNHkUbJvkS8jspgM_83EGWAhJqnuHKVYEHmmfa
-    network_mode: "host"
-#    command: ["ngrok", "http", "80"]
+    command: ["http", "--url=musical-pheasant-major.ngrok-free.app", "80"]
+    depends_on:
+      - nginx
 #    command: ngrok http 80
 #    - "http"
-#    - "--url=musical-pheasant-major.ngrok-free.app"
+#    -
 #    - "80"
 
 
