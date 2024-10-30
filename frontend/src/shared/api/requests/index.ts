@@ -1,1 +1,0 @@
-export { getRequests } from "./requests";
