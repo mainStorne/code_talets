@@ -22,9 +22,15 @@ export const SendRequest = () => {
       </div>
 
       <div className={styles.input_container}>
-        <label htmlFor="resume">Резюме</label>
-        <input className={styles.resume} type="text" />
+        <label htmlFor="resume" className={styles.upload_button}>
+          Добавить файл
+        </label>
+        <input id="resume" className={styles.hidden_input} type="file" />
       </div>
+      <h2>
+        Макимальный размер файла - 50МБ. Допустимые форматы - txt, pdf, doc,
+        docx, xis, xIsx, ppt, pptx, bmp, gif, jpg, jpeg, png, zip, rar.
+      </h2>
     </>
   );
 };
