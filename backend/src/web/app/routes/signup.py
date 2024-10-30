@@ -16,7 +16,7 @@ from backend.web import get_repo
 from backend.web import get_role_id
 from backend.web import get_photo_url_and_write_user_photo_on_static_file
 from backend.web import settings
-from ..schemes.telegram_data import TelegramData
+from web.app.schemas.telegram_data import TelegramData
 from backend.web.src.app.utils import create_verification_code
 from backend.web.src.app.utils import templates, BASE_PATH
 from backend.web.src.app.utils.authorized_user_router import NonAuthorizedUserAPIRouter

@@ -13,7 +13,6 @@ import fastapi_users_db_sqlalchemy
 ${imports if imports else ""}
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncConnection
 from app.db.models.users import User
-from app.db.models.roles import Role
 from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
 
 class Factory(SQLAlchemyFactory):
@@ -33,13 +32,6 @@ def upgrade() -> None:
         session = AsyncSession(bind=connection)
         Factory.__async_session__ = session
         u_factory = Factory.create_factory(User)
-        roles = ['driver', 'manager', 'admin']
-        for role in roles:
-            role_in_db = Role(name=role)
-            session.add(role_in_db)
-            await session.commit()
-            for i in range(10):
-                await u_factory.create_async(id=role_in_db.id)
 
     op.run_async(seed_db)
 

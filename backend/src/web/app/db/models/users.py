@@ -1,12 +1,28 @@
 from fastapi_users.db import SQLAlchemyBaseUserTable
-from sqlalchemy import Integer, ForeignKey, String
+from sqlalchemy import Integer, ForeignKey, String, Boolean, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base, IDMixin
 
 
 class User(IDMixin, Base):
     __tablename__ = 'users'
-    first_name: Mapped[str] = mapped_column(String())
-    middle_name: Mapped[str] = mapped_column(String())
-    last_name: Mapped[str] = mapped_column(String())
+    first_name: Mapped[str] = mapped_column(
+        String(length=320)
+    )
+    middle_name: Mapped[str] = mapped_column(
+        String(length=320)
+    )
+    last_name: Mapped[str] = mapped_column(
+        String(length=320))
+    is_superuser: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
+    city: Mapped[str] =  mapped_column(
+        String(length=320))
 
+    resume_url: Mapped[str] = mapped_column(
+        String(length=800)
+    )
+    experience: Mapped[float] = mapped_column(
+        Float
+    )

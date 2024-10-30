@@ -1,4 +1,4 @@
-from settings import settings
+from .settings import settings
 import redis.asyncio as redis
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 

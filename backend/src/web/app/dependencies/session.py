@@ -1,5 +1,5 @@
 from typing import AsyncGenerator
-from web.app.conf import async_session_maker
+from ..conf import async_session_maker
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
