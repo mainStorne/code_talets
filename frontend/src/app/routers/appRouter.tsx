@@ -7,11 +7,13 @@ import {
 } from "react-router-dom";
 import { Layout } from "../layout";
 import { SendRequest } from "../../pages/sendRequest";
+import { Questionnaire } from "../../pages/questionnaire/ui/Questionnaire";
 
 export const AppRouter = () => {
   const routers = createRoutesFromElements(
     <Route path="/" element={<Layout />}>
       <Route path="/send_request" element={<SendRequest />} />
+			<Route path="/test" element={<Questionnaire />} />
     </Route>
   );
 
