@@ -47,9 +47,11 @@ services:
       - ./nginx:/etc/nginx
     depends_on:
       - server
+      - frontend
 
   ngrok:
     image: ngrok/ngrok:latest
+    network_mode: host
     container_name: ngrok
     expose:
       - 443
