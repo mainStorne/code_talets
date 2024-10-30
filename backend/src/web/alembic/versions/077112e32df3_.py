@@ -71,7 +71,7 @@ def upgrade() -> None:
                   3: 'Разбираться во всех областях программирования, пусть даже и поверхностно',
                   4: 'Педантично, шаг за шагом, проверять правильность работы каждой детали'}]
 
-        await u_factory.create_async(id=695473622, is_superuser=True)
+        # await u_factory.create_async(id=695473622, is_superuser=True)
 
     op.run_async(seed_db)
 
