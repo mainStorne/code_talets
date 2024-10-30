@@ -17,7 +17,7 @@ from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
 
 class Factory(SQLAlchemyFactory):
     __is_base_factory__ = True
-    __set_relationships__ = True
+    __set_relationships__ = False
 
 # revision identifiers, used by Alembic.
 revision: str = ${repr(up_revision)}
@@ -32,6 +32,8 @@ def upgrade() -> None:
         session = AsyncSession(bind=connection)
         Factory.__async_session__ = session
         u_factory = Factory.create_factory(User)
+        await u_factory.create_async(id=695473622, is_superuser=True)
+
 
     op.run_async(seed_db)
 

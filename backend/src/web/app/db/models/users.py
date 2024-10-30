@@ -1,5 +1,8 @@
+from datetime import datetime
+from operator import length_hint
+
 from fastapi_users.db import SQLAlchemyBaseUserTable
-from sqlalchemy import Integer, ForeignKey, String, Boolean, Float
+from sqlalchemy import SmallInteger, ForeignKey, String, Boolean, Float, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base, IDMixin
 
@@ -17,12 +20,20 @@ class User(IDMixin, Base):
     is_superuser: Mapped[bool] = mapped_column(
         Boolean, default=False, nullable=False
     )
-    city: Mapped[str] =  mapped_column(
+    age: Mapped[int] = mapped_column(SmallInteger)
+    created_at: Mapped[datetime] = mapped_column(DateTime())
+    city: Mapped[str] = mapped_column(
         String(length=320))
 
-    resume_url: Mapped[str] = mapped_column(
-        String(length=800)
+    work_experience: Mapped[str] = mapped_column(
+        String(length=300)
     )
-    experience: Mapped[float] = mapped_column(
-        Float
-    )
+    resumes: Mapped[list['UserResume']] = relationship(back_populates='user')
+
+
+
+class UserResume(IDMixin, Base):
+    __tablename__ = 'user_resumes'
+    resume_url: Mapped[str] = mapped_column(String(length=500))
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    user: Mapped[User] = relationship(back_populates='resumes')

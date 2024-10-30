@@ -7,12 +7,13 @@ from ..storage.db.models import User
 class HaveUserFilter(BaseFilter):
 
     async def __call__(self, message, session: AsyncSession):
-        # m = ModelManager(User)
-        # return await m.get(session, id=message.from_user.id)
-        return None
+        m = ModelManager(User)
+        return await m.get(session, id=message.from_user.id)
 
 
 class AdminFilter(HaveUserFilter):
     async def __call__(self, message, session: AsyncSession):
-        user: User = await super.__call__(message, session)
-        return user if user.is_superuser else None
+        user: User | None = await super().__call__(message, session)
+        if user and user.is_superuser:
+            return user
+        return None

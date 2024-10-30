@@ -1,44 +1,26 @@
 from datetime import datetime
-from typing import Optional, TypeVar
-from pydantic import EmailStr, ConfigDict, Field, BaseModel
-from fastapi_users import schemas
-from fastapi_users.schemas import CreateUpdateDictModel
 from fastapi_sqlalchemy_toolkit import make_partial_model
 
-
-class Role(BaseModel):
-    name: str
-    model_config = ConfigDict(from_attributes=True)  # type: ignore
+from pydantic import BaseModel, Field
 
 
-class RoleCreate(Role):
+class BaseUser(BaseModel):
+    first_name: str
+    middle_name: str
+    last_name: str
+    created_at: datetime = datetime.now()
+    is_superuser: bool = False
+    age: int = Field(le=200, ge=13)
+    city: str
+    work_experience: str
+
+
+class CreateUser(BaseUser):
     pass
 
 
-class RoleRead(Role):
+class ReadUser(BaseUser):
     id: int
 
 
-RoleUpdate = make_partial_model(RoleCreate)
-
-
-class BaseUser(CreateUpdateDictModel):
-    email: EmailStr
-    is_active: bool = True
-    is_superuser: bool = False
-    is_verified: bool = False
-    role_id: int | None = None
-    model_config = ConfigDict(from_attributes=True)  # type: ignore
-
-
-class UserRead(BaseUser):
-    id: int
-
-
-class UserCreate(BaseUser):
-    password: str
-
-
-UserUpdate = make_partial_model(UserCreate)
-
-UC = TypeVar('UC', bound=UserCreate)
+UpdateUser = make_partial_model(CreateUser)
