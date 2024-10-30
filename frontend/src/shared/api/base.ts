@@ -1,3 +1,3 @@
-const BASE_URL = "https://665730a89f970b3b36c84dc4.mockapi.io";
+const BASE_URL = "https://musical-pheasant-major.ngrok-free.app/api";
 
 export default BASE_URL;
