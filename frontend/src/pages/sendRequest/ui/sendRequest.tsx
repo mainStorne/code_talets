@@ -5,7 +5,7 @@ export const SendRequest = () => {
     <>
       <h1 className={styles.title}>Заполните форму</h1>
       <div className={styles.input_container}>
-        <label htmlFor="name">Как вас зовут (ФИО)</label>
+        <label htmlFor="name">Как вас зовут (ФИО) *</label>
         <input className={styles.input} type="text" />
       </div>
       <div className={styles.input_container}>
@@ -22,15 +22,17 @@ export const SendRequest = () => {
       </div>
 
       <div className={styles.input_container}>
+        <label htmlFor="city">Резюме</label>
         <label htmlFor="resume" className={styles.upload_button}>
           Добавить файл
         </label>
         <input id="resume" className={styles.hidden_input} type="file" />
       </div>
-      <h2>
+      <h2 className={styles.sopd}>
         Макимальный размер файла - 50МБ. Допустимые форматы - txt, pdf, doc,
         docx, xis, xIsx, ppt, pptx, bmp, gif, jpg, jpeg, png, zip, rar.
       </h2>
+      <button>Отправить</button>
     </>
   );
 };
