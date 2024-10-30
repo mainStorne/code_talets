@@ -2,11 +2,11 @@
 	width: 26px;
 	height: 14px;
 	margin-top: 40px;
-	margin-left: 345px;
+	margin-left: 79vw;
 }
 
 .hr{
-	width: 365px;
+	width: 94%;
 	height: 1px;
 	color: rgba(147, 143, 240, 1);
 	margin-left: 10px;
@@ -20,12 +20,13 @@
 
 .buttonContainer{
 	position: fixed;
-  bottom: 40px;
-  left: 50%;
+  bottom: 35px;
+  left: 52%;
   transform: translateX(-50%);
   display: flex;
   gap: 14px;
   margin-left: 0;
+	width: 87%;
 }
 
 .prevButton{
@@ -41,4 +42,17 @@
 .nextButton{
 	width: 365px;
 	height: 65;
+}
+
+
+@media (max-width: 373px) {
+	.buttonContainer {
+		bottom: 10px;
+	}
+}
+
+@media (max-width: 361px) {
+	.buttonContainer {
+		bottom: 0px;
+	}
 }

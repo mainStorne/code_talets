@@ -3,21 +3,24 @@ import styles from "./Questionnaire.module.scss";
 import { Header } from "../../../widgets/header";
 import CircleToggle from "./circleToggle/CircleToggle";
 import { data } from "../api/getRequestion";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 import prevButtonSvg from "../../../assets/prevButton.svg";
 import HeaderText from "./mainTextOfPage/MainTextOfPage";
 
 export const Questionnaire = () => {
-	const navigate = useNavigate();
-
+  const navigate = useNavigate();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const totalQuestions = data.total_questions;
-  const [answers, setAnswers] = useState<string[]>(Array(totalQuestions).fill(''));
+
+  const [answers, setAnswers] = useState<(number | null)[]>(
+    Array(totalQuestions).fill(null)
+  );
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
+			console.log(answers)
       navigate("/answer_test");
     }
   };
@@ -28,9 +31,10 @@ export const Questionnaire = () => {
     }
   };
 
-  const handleAnswerSelect = (text: string) => {
+  const handleAnswerSelect = (index: number) => {
     const newAnswers = [...answers];
-    newAnswers[currentQuestionIndex] = newAnswers[currentQuestionIndex] === text ? '' : text;
+    newAnswers[currentQuestionIndex] =
+      newAnswers[currentQuestionIndex] === index ? null : index;
     setAnswers(newAnswers);
   };
 
@@ -38,7 +42,7 @@ export const Questionnaire = () => {
     <>
       <Header />
       <div>
-				<HeaderText text={"Выберите утверждение, которое вам ближе"} />
+        <HeaderText text={"Выберите утверждение, которое вам ближе"} />
       </div>
 
       <div className={styles.divForCountOfQuestion}>
@@ -53,8 +57,8 @@ export const Questionnaire = () => {
           <CircleToggle
             key={index}
             text={text}
-            isFilled={answers[currentQuestionIndex] === text}
-            onSelect={handleAnswerSelect}
+            isFilled={answers[currentQuestionIndex] === index}
+            onSelect={() => handleAnswerSelect(index)}
           />
         ))}
       </div>
@@ -65,7 +69,10 @@ export const Questionnaire = () => {
             <img src={prevButtonSvg} alt="" />
           </button>
         )}
-        <button className={currentQuestionIndex === 0 ? styles.nextButton : styles.nextButtonSolo} onClick={handleNextQuestion}>
+        <button
+          className={currentQuestionIndex === 0 ? styles.nextButton : styles.nextButtonSolo}
+          onClick={handleNextQuestion}
+        >
           Далее
         </button>
       </div>

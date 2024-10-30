@@ -1,27 +1,31 @@
 import styles from "./AnswerTest.module.scss";
 import { Header } from "../../../widgets/header";
 import HeaderText from "./mainTextOfPage/MainTextOfPage";
+import { Developer } from "../api/getAnswerRequestion";
 
-export const WelcomeTest = () => {
+export const AnswerTest = () => {
+  const options = [Developer];
+  const selectedOption = options[0];
+	const textParts = selectedOption.text.split('.').filter(part => part.trim() !== '');
 
   return (
     <>
       <Header />
       <div>
-				<HeaderText text={'Ваш результат:'} />
+        <HeaderText text={'Ваш результат:'} />
       </div>
 
-      <div className={styles.mainText}>
-				<p>
-					В сфере разработки существует множество направлений, в том числе не связанных с языками программирования.
-				</p>
+      <div className={styles.DivForMainText}>
+        <p>{selectedOption.answer}</p>
+      </div>
 
-				<p className={styles.text}>
-					Пройдите тест и узнайте, какие профессии в IT подходят именно вам.
-        </p>
+      <div className={styles.divForText}>
+				{textParts.map((part, index) => (
+          <p key={index} className={styles.text}>{part.trim()}.</p>
+        ))}
       </div>
     </>
   );
 };
 
-export default WelcomeTest;
+export default AnswerTest;
