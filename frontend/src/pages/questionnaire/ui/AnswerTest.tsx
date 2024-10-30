@@ -2,6 +2,7 @@ import styles from "./AnswerTest.module.scss";
 import { Header } from "../../../widgets/header";
 import HeaderText from "./mainTextOfPage/MainTextOfPage";
 import { Developer } from "../api/getAnswerRequestion";
+import Net from "./net/Net";
 
 export const AnswerTest = () => {
   const options = [Developer];
@@ -10,6 +11,7 @@ export const AnswerTest = () => {
 
   return (
     <>
+			<Net />
       <Header />
       <div>
         <HeaderText text={'Ваш результат:'} />
