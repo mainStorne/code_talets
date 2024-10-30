@@ -1,0 +1,8 @@
+@use "src/app/styles/breakpoints";
+.layout {
+  background: green;
+
+  &__content {
+    flex: 1 0 auto;
+  }
+}

@@ -1,0 +1,66 @@
+version: "3"
+
+include:
+#  - path: docker-compose/accounts.yml
+#    project_directory: .
+#  - path: docker-compose/m1m.yml
+#    project_directory: ./backend
+  - path: docker-compose/server.yml
+    project_directory: .
+
+services:
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+
+  postgres:
+    image: postgres
+    env_file:
+      - ./.env
+    container_name: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+
+
+  redis:
+    image: redis/redis-stack:latest
+    ports:
+       - "8001:8001"
+    expose:
+     - 6379
+    container_name: redis
+    volumes:
+      - redis_volume:/data
+
+
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx:/etc/nginx
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: ngrok
+    expose:
+      - 443
+    environment:
+      NGROK_AUTHTOKEN: 2ibfdY2tcsIyNHkUbJvkS8jspgM_83EGWAhJqnuHKVYEHmmfa
+    network_mode: "host"
+#    command: ["ngrok", "http", "80"]
+#    command: ngrok http 80
+#    - "http"
+#    - "--url=musical-pheasant-major.ngrok-free.app"
+#    - "80"
+
+
+volumes:
+  redis_volume: {}
+  pgdata: {}

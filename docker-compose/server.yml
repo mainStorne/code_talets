@@ -1,0 +1,22 @@
+
+services:
+
+  server:
+    build:
+      context: ./backend
+      dockerfile: ./web.Dockerfile
+    volumes:
+      - ./backend/src/web:/src/web
+    env_file:
+      - ./.env
+    environment:
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+
+    depends_on:
+      - redis
+      - postgres
+    container_name: server
+    expose:
+      - 80
+
