@@ -1,14 +1,16 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
+import sass from "sass";
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: {
-    host: true,
-    port: 5173,
-    watch: {
-      usePolling: true,
+  css: {
+    preprocessorOptions: {
+      scss: {
+        implementation: sass,
+        api: "modern-compiler",
+      },
     },
   },
 });
