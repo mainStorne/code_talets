@@ -19,7 +19,7 @@ interface PostResumesResponse {
 }
 
 export const SendRequest = () => {
-	const location = useLocation();
+  const location = useLocation();
   const nextParam = new URLSearchParams(location.search).get("next");
   const [fullName, setFullName] = useState("");
   const [age, setAge] = useState<number | undefined>(undefined);
@@ -43,11 +43,11 @@ export const SendRequest = () => {
       console.log("Данные успешно отправлены:", response);
       setSuccessMessage("Данные успешно отправлены!");
       setErrorMessage("");
-			if (nextParam){
-				navigate("/welcome_test");
-			} else {
-				navigate("/thank_you");
-			}
+      if (nextParam) {
+        navigate("/welcome_test");
+      } else {
+        navigate("/thank_you");
+      }
     },
     onError: (error) => {
       console.error("Ошибка при отправке данных:", error);
@@ -117,6 +117,7 @@ export const SendRequest = () => {
         </label>
         <input
           className={styles.input}
+          placeholder="Иванов Иван Иванович"
           type="text"
           value={fullName}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -124,6 +125,7 @@ export const SendRequest = () => {
           }
           required
         />
+        <label htmlFor="name"></label>
       </div>
       <div className={styles.input_container}>
         <label htmlFor="age">
