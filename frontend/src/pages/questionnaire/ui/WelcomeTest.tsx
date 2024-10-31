@@ -1,6 +1,5 @@
 import styles from "./WelcomeTest.module.scss";
 import {useNavigate} from "react-router-dom"
-import { Header } from "../../../widgets/header";
 import HeaderText from "./mainTextOfPage/MainTextOfPage";
 import Net from "./net/Net";
 
@@ -11,7 +10,6 @@ export const WelcomeTest = () => {
     <>
 			<Net />
 			<div className={styles.mainDiv}>
-				<Header />
 				<div>
 					<HeaderText text={'Какое направление в IT выбрать?'} />
 				</div>
