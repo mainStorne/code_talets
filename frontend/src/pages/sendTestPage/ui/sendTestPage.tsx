@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   useQuery,
   useMutation,
@@ -19,6 +20,7 @@ interface CaseData {
 }
 
 export const SendTestPage = () => {
+	const navigate = useNavigate()
   const { id } = useParams<{ id: string }>();
   const initData = window.Telegram.WebApp.initData;
 
@@ -40,7 +42,8 @@ export const SendTestPage = () => {
   const mutation: UseMutationResult<unknown, Error, CaseData> = useMutation({
     mutationFn: (caseData: CaseData) => postCase(initData, caseData),
     onSuccess: (response) => {
-      console.log("Case posted successfully:", response);
+			console.log(response);
+      navigate("/thank_you")
     },
     onError: (error) => {
       console.error("Error submitting case:", error);
