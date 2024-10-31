@@ -15,4 +15,4 @@ else:
 		print('Ошибка при запросе:', response.status_code)
 
 # get_vacancies()
-print('a')
+print(response.status_code)

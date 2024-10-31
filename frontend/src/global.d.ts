@@ -1,7 +1,8 @@
-// globals.d.ts
 interface TelegramWebApp {
   initData: string;
-  // Добавьте другие свойства и методы, если нужно
+  requestContact(
+    callback: (result: { user?: { phone_number?: string } } | null) => void
+  ): void;
 }
 
 interface Window {
