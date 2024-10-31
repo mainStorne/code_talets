@@ -24,6 +24,7 @@ export const AppRouter = () => {
       <Route path="/thank_you" element={<ThanksPage />} />
 			<Route path="/send_answer/:id" element={<SendAnswer />} />
       <Route path="/send_test/:id" element={<SendTestPage />} />
+      {/* <Route path="/send_test" element={<SendTestPage />} /> */}
     </Route>
   );
 

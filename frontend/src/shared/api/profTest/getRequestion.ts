@@ -1,5 +1,5 @@
 import axios from "axios";
-import BASE_URL from "../../../shared/api/base";
+import BASE_URL from "../base";
 
 export interface QuestionData {
   items: Array<{

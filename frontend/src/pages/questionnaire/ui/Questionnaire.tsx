@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import styles from "./Questionnaire.module.scss";
 import { Header } from "../../../widgets/header";
 import CircleToggle from "./circleToggle/CircleToggle";
-import { fetchQuestions } from "../api/getRequestion";
+import { fetchQuestions } from "../../../shared/api/profTest/getRequestion";
 import { useNavigate } from "react-router-dom";
 import prevButtonSvg from "../../../assets/prevButton.svg";
 import HeaderText from "./mainTextOfPage/MainTextOfPage";
-import { QuestionData } from "../api/getRequestion";
-import { sendAnswers } from "../api/sendAnswers";
 import { useLoad } from '../../../app/providers/load/loadProvider';
 import Loading from '../../../widgets/loading/ui/loading';
+import { QuestionData } from "../../../shared/api/profTest/getRequestion";
+import { sendAnswers } from "../../../shared/api/profTest/sendAnswers";
 
 export const Questionnaire = () => {
 	const initData = window.Telegram.WebApp.initData;
@@ -18,7 +18,7 @@ export const Questionnaire = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [data, setData] = useState<QuestionData | null>(null);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
-  const [speciality_id, setSpecialityId] = useState<(number)[]>([]);
+  const [speciality_id, setSpecialityId] = useState<number[]>([]);
 
   useEffect(() => {
     const loadQuestions = async () => {
@@ -94,7 +94,6 @@ export const Questionnaire = () => {
       newAnswers[currentQuestionIndex] = index;
       newSpecialities[currentQuestionIndex] = specialityId;
     }
-
     setAnswers(newAnswers);
     setSpecialityId(newSpecialities);
   };
@@ -132,7 +131,10 @@ export const Questionnaire = () => {
 
       <div className={styles.buttonContainer}>
         {currentQuestionIndex > 0 && (
-          <button className={styles.prevButton} onClick={handlePreviousQuestion}>
+          <button
+            className={styles.prevButton}
+            onClick={handlePreviousQuestion}
+          >
             <img src={prevButtonSvg} alt="" />
           </button>
         )}

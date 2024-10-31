@@ -9,7 +9,6 @@ import { getUserData } from "../../../shared/api/getResumes";
 import { postCase } from "../../../shared/api/sendTestEx/";
 import styles from "./sendtestpage.module.scss";
 
-// Define the interface for the case data
 interface CaseData {
   case_url: string;
   text: string;
@@ -23,14 +22,13 @@ export const SendTestPage = () => {
   const { id } = useParams<{ id: string }>();
   const initData = window.Telegram.WebApp.initData;
 
-  // Form state
   const [executionTime, setExecutionTime] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [fileLink, setFileLink] = useState<string>("");
   const [fileName, setFileName] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isFormValid, setIsFormValid] = useState(false);
 
-  // Fetch user data
   const {
     data,
     error,
@@ -41,8 +39,13 @@ export const SendTestPage = () => {
     enabled: !!id,
   });
 
-  const mutation: UseMutationResult<unknown, Error, CaseData> = useMutation({
-    mutationFn: (caseData: CaseData) => postCase(initData, caseData),
+  const mutation: UseMutationResult<
+    unknown,
+    Error,
+    { initData: string; caseData: CaseData; file: File }
+  > = useMutation({
+    mutationFn: ({ initData, caseData, file }) =>
+      postCase(initData, caseData, file),
     onSuccess: (response) => {
       console.log("Case posted successfully:", response);
     },
@@ -56,9 +59,10 @@ export const SendTestPage = () => {
       executionTime.trim().length > 0 &&
         description.trim().length > 0 &&
         fileLink.trim().length > 0 &&
-        fileName.trim().length > 0
+        fileName.trim().length > 0 &&
+        !!selectedFile
     );
-  }, [executionTime, description, fileLink, fileName]);
+  }, [executionTime, description, fileLink, fileName, selectedFile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,13 +76,16 @@ export const SendTestPage = () => {
       exp_at: new Date(executionTime).toISOString(),
     };
 
-    mutation.mutate(caseData);
+    if (selectedFile) {
+      mutation.mutate({ initData, caseData, file: selectedFile });
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setFileName(file.name);
+      setSelectedFile(file);
     }
   };
 
@@ -157,6 +164,7 @@ export const SendTestPage = () => {
             className={styles.hidden_input}
             type="file"
             onChange={handleFileChange}
+            required
           />
         </div>
         <div className={styles.input_container}>
@@ -172,6 +180,14 @@ export const SendTestPage = () => {
             required
           />
         </div>
+        {mutation.isError && (
+          <p className={styles.error}>
+            Произошла ошибка при отправке: {mutation.error.message}
+          </p>
+        )}
+        {mutation.isSuccess && (
+          <p className={styles.success}>Задание успешно отправлено!</p>
+        )}
         <button
           type="submit"
           className={`${styles.submit_button} ${
