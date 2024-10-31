@@ -59,7 +59,7 @@ export const SendRequest = () => {
       workExperience.trim().length > 0 &&
       phoneNumber.trim().length > 0 &&
       file !== null &&
-      isCheckboxChecked; // Include checkbox state in validity check
+      isCheckboxChecked;
 
     setIsFormValid(isValid);
   }, [

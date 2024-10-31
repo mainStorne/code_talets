@@ -16,6 +16,7 @@ export const postCase = async (initData: string, caseData: CaseData) => {
       headers: {
         "Content-Type": "application/json",
         "init-data": initData,
+        "ngrok-skip-browser-warning": "69420",
       },
     });
     return response.data;
