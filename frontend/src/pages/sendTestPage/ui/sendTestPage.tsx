@@ -58,7 +58,6 @@ export const SendTestPage = () => {
     setIsFormValid(
       executionTime.trim().length > 0 &&
         description.trim().length > 0 &&
-        fileLink.trim().length > 0 &&
         fileName.trim().length > 0 &&
         !!selectedFile
     );
