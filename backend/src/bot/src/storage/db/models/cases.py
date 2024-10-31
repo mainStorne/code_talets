@@ -8,12 +8,9 @@ from datetime import datetime
 
 class Case(IDMixin, Base):
     __tablename__ = 'cases'
-    creator_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    creator_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
     executor_id: Mapped[int] = mapped_column(
-        ForeignKey('users.id')
-    )
-    start_time: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True)
+        ForeignKey('users.id', ondelete='CASCADE')
     )
     exp_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True)
@@ -25,9 +22,10 @@ class Case(IDMixin, Base):
         String(), nullable=True
     )
 
+
 class CaseAnswer(IDMixin, Base):
     __tablename__ = 'case_answers'
-    answer_to_id: Mapped[int] = mapped_column(ForeignKey('cases.id'))
+    answer_to_id: Mapped[int] = mapped_column(ForeignKey('cases.id', ondelete='CASCADE'))
     case_url: Mapped[str] = mapped_column(
         String(), nullable=True
     )

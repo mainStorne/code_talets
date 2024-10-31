@@ -3,7 +3,6 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Response, status, Body
 from fastapi_pagination import Page
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from ...db.adapters.redis_client import RedisClient
 from ...dependencies.session import get_session
 from ...dependencies.redis import get_redis
@@ -28,6 +27,9 @@ async def questions(session: AsyncSession = Depends(get_session)) -> Page[Questi
 async def finish(spec_ids: Annotated[list[int], Body(embeded=True)],
                  user: User = Depends(auth.current_user()),
                  session: AsyncSession = Depends(get_session)):
-    response = await m.calc_results(session, spec_ids)
-    await bot.send_message(user.id, f'🎉Вы Успешно прошли тест!🎉\n\n Специальности: {" ".join([res.name for res in response])}')
+    markup, response = await m.calc_results(session, spec_ids)
+
+    # Настраиваем размер клавиатуры
+    await bot.send_message(user.id, f'🎉Вы Успешно прошли тест!🎉\n\n Выберите полученные специальности:',
+                           reply_markup=markup)
     return response

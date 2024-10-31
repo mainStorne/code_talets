@@ -1,6 +1,5 @@
 from typing import Literal
 from ..models.users import User
-
 from redis.asyncio import Redis
 
 

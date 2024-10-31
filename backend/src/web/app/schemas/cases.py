@@ -9,13 +9,13 @@ from pydantic.main import IncEx
 
 
 class BaseCase(BaseModel):
-    case_url: HttpUrl | None
+    case_url: str | None
     text: str | None
-
 
 
 class CaseCreate(BaseCase):
     executor_id: int
+    creator_id: int | None = None
     exp_at: datetime
 
 
@@ -24,6 +24,7 @@ class CaseFile(BaseModel):
 
 
 class CaseRead(CaseCreate):
+    creator_id: int
     id: int
 
 
@@ -37,3 +38,6 @@ class CaseAnswer(BaseCase):
 
 class CaseAnswerRead(CaseAnswer):
     id: int
+
+
+CaseAnswerUpdate = make_partial_model(CaseAnswer)

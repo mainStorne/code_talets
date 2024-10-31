@@ -6,6 +6,7 @@ from pydantic import ValidationError
 import asyncio
 from .utils.connect_to_api_google_sheet import init_google_sheet, writeDataToGoogleSheet
 
+
 class Worker:
 
     async def handle_create(self, message: CreateUserMessage):
@@ -14,15 +15,11 @@ class Worker:
             wks = init_google_sheet()
             writeDataToGoogleSheet(wks, message.to_list())
 
-        # res = await asyncio.to_thread(func)
-        # logging.info(res)
         try:
-            func()
+            res = await asyncio.to_thread(func)
+            logging.info(res)
         except Exception as e:
             logging.error(exc_info=e, msg='')
-
-
-
 
     async def __call__(self, *args, **kwargs):
         # maybe create ping

@@ -9,12 +9,12 @@ from ...managers.base import BaseManager as ModelManager
 from ...db.models.cases import Case, CaseAnswer as CaseAnswerDB
 from ...dependencies.session import get_session
 from ...authenticator import Authenticator
-from ...schemas.cases import CaseCreate, CaseRead, CaseUpdate, CaseAnswer, CaseAnswerRead, CaseFile
+from ...schemas.cases import CaseCreate, CaseRead, CaseUpdate, CaseAnswer, CaseAnswerRead, CaseAnswerUpdate
+
 from ...conf import bot
 
 from ...utils.save_file import save_file_to_static
 
-m = ModelManager(Case)
 case_answer_manager = ModelManager(CaseAnswerDB)
 auth = Authenticator()
 
@@ -33,7 +33,6 @@ from ...fastapi_crud_toolkit.openapi_responses import (
     case_expired_response
 
 )
-from ...dependencies.telegram_validation import get_telegram_data, TelegramData
 
 
 def checker(objs: str = Form(...)):
@@ -68,27 +67,6 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
     async def objs(request: Request, session: AsyncSession = Depends(get_session), ):
         return await manager.list(session)
 
-    @crud.post("/", response_model=read_scheme, responses={
-        **missing_token_or_inactive_user_response,
-        status.HTTP_409_CONFLICT: {
-            "model": ErrorModel,
-        }
-    }, status_code=status.HTTP_201_CREATED, name=f"{name}:new one",
-
-               )
-    async def obj(objs: create_scheme = Depends(checker), file: UploadFile | None = None,
-                  session: AsyncSession = Depends(get_session)
-                  , user: User = Depends(get_current_active_user), redis: RedisClient = Depends(get_redis)):
-        objs.creator_id = user.id
-        if objs.case_url is None:
-            path = save_file_to_static(file)
-            objs.case_url = path
-
-        response = await manager.create(session, objs)
-        await redis.xadd('users.cases.create',
-                         {'id': user.id, 'exp_at': objs.exp_at.timestamp(), **objs.model_dump(exclude={'exp_at'})})
-        return response
-
     @crud.patch("/{id}", response_model=read_scheme, responses={
         **auth_responses,
         **not_found_response,
@@ -110,6 +88,27 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
     async def obj(request: Request, id: int, session: AsyncSession = Depends(get_session)):
         return await manager.get_or_404(session, id=id)
 
+    # @crud.post("/", response_model=read_scheme, responses={
+    #     **missing_token_or_inactive_user_response,
+    #     status.HTTP_409_CONFLICT: {
+    #         "model": ErrorModel,
+    #     }
+    # }, status_code=status.HTTP_201_CREATED, name=f"{name}:new one",
+    #
+    #            )
+    # async def obj(objs: create_scheme = Depends(checker), file: UploadFile | None = None,
+    #               session: AsyncSession = Depends(get_session)
+    #               , user: User = Depends(get_current_active_user), redis: RedisClient = Depends(get_redis)):
+    #     objs.creator_id = user.id
+    #     if objs.case_url is None:
+    #         path = save_file_to_static(file)
+    #         objs.case_url = path
+    #
+    #     response = await manager.create(session, objs)
+    #     await redis.xadd('users.cases.create',
+    #                      {'id': response.id, 'exp_at': objs.exp_at.timestamp(), **objs.model_dump(exclude={'exp_at'})})
+    #     return response
+
     @crud.delete("/{id}",
                  dependencies=[Depends(get_current_superuser)],
                  response_class=Response,
@@ -122,46 +121,10 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
         await manager.delete(session, obj_in_db)
         return
 
-    @crud.post('/upload', response_model=CaseRead)
-    async def upload(id: int, file: UploadFile = File(),
-                     session=Depends(get_session),
-                     user: User = Depends(get_current_active_user),
-                     ):
-
-        case = await m.get_or_404(session, id=id)
-        model = Case
-        adapter = BaseAdapter(session, model)
-        path = save_file_to_static(file)
-        return await adapter.update(case, {'case_url': path})
-
-    @crud.post('/answer',
-               responses={
-                   **missing_token_or_inactive_user_response,
-                   **not_found_response,
-                   **case_expired_response,
-
-               },
-               response_model=CaseAnswerRead,
-               )
-    async def case_answer(answered_case: CaseAnswer,
-                          user = Depends(get_current_active_user),
-                          session: AsyncSession = Depends(get_session),
-                          redis: RedisClient = Depends(get_redis)):
-        case = await m.get_or_404(session, id=answered_case.answer_to_id)
-        if case.exp_at < answered_case.created_at:
-            raise HTTPException(status.HTTP_409_CONFLICT)
-        response = await case_answer_manager.create(session, answered_case)
-
-        await redis.xadd('users.cases.answer', {
-            'user_id': user.id,
-            'created_at': answered_case.created_at.timestamp(),
-            **answered_case.model_dump(exclude={'created_at'})})
-        return response
-
     return crud
 
 
-r = get_crud_router(m, get_session,
-                    CaseRead, CaseUpdate, CaseCreate,
+r = get_crud_router(case_answer_manager, get_session,
+                    CaseAnswerRead, CaseAnswerUpdate, CaseAnswer,
                     auth,
                     )

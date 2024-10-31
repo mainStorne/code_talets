@@ -13,39 +13,48 @@ from .conf import async_session_maker, settings
 from .storage.db.models.users import User, UserResume
 from sqlalchemy import select
 from .buttons.inline import main_menu
+import locale
 
 
 class Worker:
-    async def handle_cases(self, message: UserCreateMessage):
+    async def handle_create(self, message: UserCreateMessage):
         async with async_session_maker() as session:
-            # stmt = select(User).join(UserResume, User.id == UserResume.user_id).where(User.id == message.user_id)
             admin = select(User).where(User.is_superuser == True)
-            admin = await session.scalar(admin)
+            admins = await session.scalars(admin)
+            logging.info(f'admin recieve {type(admins)} {admins}')
+            if not admins:
+                return
 
         builder = InlineKeyboardBuilder()
         builder.button(text=f'Отправьте тестовое задание для кандидата!\n\n{message.text}',
-                       web_app=WebAppInfo(url=f'https://9w8x7mzf-5173.use.devtunnels.ms/send_test/{message.id}/'))
+                       web_app=WebAppInfo(url=f'{settings.DOMAIN_URL}/send_test/{message.id}/'))
         builder.adjust(1)
-
-        await bot.send_message(admin.id, text='Вам сообщение!', reply_markup=builder.as_markup())
+        for admin in admins:
+            await bot.send_message(admin.id, text='Вам сообщение!', reply_markup=builder.as_markup())
 
     async def handle_case_create(self, message: CaseRead):
         builder = InlineKeyboardBuilder()
-        builder.button(text=f'Вам отправили тестовое задание!\n\n',
-                       web_app=WebAppInfo(url=f'https://9w8x7mzf-5173.use.devtunnels.ms/send_test/{message.id}/'))
+        answer_case_url = WebAppInfo(url=f'{settings.DOMAIN_URL}/send_answer/{message.id}/')
+        builder.button(text=f'Задание',
+                       web_app=answer_case_url)
         builder.adjust(1)
-        await bot.send_message(message.executor_id, reply_markup=builder.as_markup())
+        await bot.send_message(message.executor_id,
+                               text=f'Вам отправили тестовое задание!\n\n Выполните его до {message.exp_at.strftime('%d-%B-%Y %H:%M')}👇',
+                               reply_markup=builder.as_markup())
 
     async def handle_answer_case(self, message: CaseAnswer):
         builder = InlineKeyboardBuilder()
-        builder.button(text=f'Ответ на тестовое задание 👇',
-                       web_app=WebAppInfo(url=f'https://9w8x7mzf-5173.use.devtunnels.ms/send_test/{message.id}/'))
+        # todo route!
+        admin_answer_case_url = WebAppInfo(url=f'https://9w8x7mzf-5173.use.devtunnels.ms/send_test/{message.id}')
+        builder.button(text=f'Задание',
+                       web_app=admin_answer_case_url)
         builder.adjust(1)
-        await bot.send_message(message.executor_id, reply_markup=builder.as_markup())
+        await bot.send_message(message.executor_id, text='Ответ на тестовое задание 👇',
+                               reply_markup=builder.as_markup())
 
     async def pinger(self, user_id: int):
         while True:
-            await asyncio.sleep(2)
+            await asyncio.sleep(20)
             async with async_session_maker() as session:
                 user = select(User).where(User.id == user_id)
                 user = await session.scalar(user)
@@ -58,16 +67,21 @@ class Worker:
 
     async def __call__(self, *args, **kwargs):
         logging.info('Start Bot Worker')
+
+        locale.setlocale(locale.LC_ALL, 'ru_RU')
         # maybe create ping
         async with RedisClient.from_pool(connection_pool) as redis:
-            async for key, payload in redis.listen_for_stream(['users.create', 'users.cases.answer', 'users.cases.create',
-                                                               'users.ping']):
+            async for key, payload in redis.listen_for_stream(
+                    ['users.create', 'users.cases.answer', 'users.cases.create',
+                     'users.ping', 'users.proftest']):
                 logging.info(f'recieved {key, payload}')
                 try:
                     if key == 'users.create':
                         message = UserCreateMessage(**payload)
+                        if message.send_to_admin is False:
+                            continue
                         logging.info(f'message file {key}, {message}')
-                        await self.handle_cases(message)
+                        await self.handle_create(message)
                     elif key == 'users.cases.answer':
                         message = CaseAnswer(**payload)
                         logging.info(f'message file {key, message}')
@@ -79,6 +93,8 @@ class Worker:
                     elif key == 'users.ping':
                         user_id = int(payload['id'])
                         await self.pinger(user_id)
+                    elif key == 'users.proftest':
+                        pass
 
                 except Exception as e:
                     logging.error(exc_info=e, msg='Error in worker')

@@ -5,10 +5,12 @@ from fastapi_users.db import SQLAlchemyBaseUserTable
 from sqlalchemy import SmallInteger, ForeignKey, String, Boolean, Float, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base, IDMixin
+from sqlalchemy import BIGINT
 
 
-class User(IDMixin, Base):
+class User(Base):
     __tablename__ = 'users'
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=False)
     phone_number: Mapped[int] = mapped_column(String(length=20))
     first_name: Mapped[str] = mapped_column(
         String(length=320)

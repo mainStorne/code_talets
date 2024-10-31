@@ -20,6 +20,7 @@ class UserCreateMessage(BaseModel):
     city: str
     created_at: datetime
     telegram: str
+    send_to_admin: bool = False
     status: str
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -37,7 +38,7 @@ from pydantic.main import IncEx
 
 
 class BaseCase(Message):
-    case_url: HttpUrl | None
+    case_url: str | None
     text: str | None
 
 
@@ -59,4 +60,5 @@ class CaseAnswer(BaseCase):
     case_url: HttpUrl | None
     text: str | None
     answer_to_id: int
+    user_id: int
     created_at: datetime

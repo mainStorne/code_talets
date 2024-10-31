@@ -8,12 +8,15 @@ class HaveUserFilter(BaseFilter):
 
     async def __call__(self, message, session: AsyncSession):
         m = ModelManager(User)
-        return await m.get(session, id=message.from_user.id)
+        user = await m.get(session, id=message.from_user.id)
+        if user is None:
+            return user
+        return {'user': user}
 
 
 class AdminFilter(HaveUserFilter):
     async def __call__(self, message, session: AsyncSession):
-        user: User | None = await super().__call__(message, session)
-        if user and user.is_superuser:
+        user: dict[str, User] | None = await super().__call__(message, session)
+        if user and user['user'].is_superuser:
             return user
         return None

@@ -5,10 +5,13 @@ from fastapi_users.db import SQLAlchemyBaseUserTable
 from sqlalchemy import SmallInteger, ForeignKey, String, Boolean, Float, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base, IDMixin
+from sqlalchemy import BIGINT
 
 
-class User(IDMixin, Base):
+class User(Base):
     __tablename__ = 'users'
+    id: Mapped[int] = mapped_column(BIGINT, primary_key=True, autoincrement=False)
+    phone_number: Mapped[int] = mapped_column(String(length=20))
     first_name: Mapped[str] = mapped_column(
         String(length=320)
     )
@@ -30,7 +33,7 @@ class User(IDMixin, Base):
     )
 
     status: Mapped[str] = mapped_column(String(length=50), nullable=True)
-    resumes: Mapped[list['UserResume']] = relationship(back_populates='user', cascade='all, delete')
+    resume: Mapped['UserResume'] = relationship(back_populates='user', cascade='all, delete')
 
 
 
@@ -38,4 +41,4 @@ class UserResume(IDMixin, Base):
     __tablename__ = 'user_resumes'
     resume_url: Mapped[str] = mapped_column(String(length=500))
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
-    user: Mapped[User] = relationship(back_populates='resumes', cascade='all, delete')
+    user: Mapped[User] = relationship(back_populates='resume', cascade='all, delete')

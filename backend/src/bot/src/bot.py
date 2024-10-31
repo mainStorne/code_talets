@@ -4,7 +4,6 @@ from aiogram import Dispatcher, Bot
 from aiogram_dialog import setup_dialogs
 from .handlers import start
 from .middlewares.database import DatabaseMiddleware
-from .settings import settings
 from .conf import async_session_maker, bot
 from .worker import Worker
 import logging

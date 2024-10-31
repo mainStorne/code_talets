@@ -1,3 +1,4 @@
+import logging
 from http.client import responses
 from typing import Annotated
 
@@ -38,6 +39,7 @@ async def register(user: Annotated[BaseUser, Body(embed=True)],
                    redis: RedisClient = Depends(get_redis)
                    ):
     user = ReadUser(**user.model_dump(), id=telegram.user.id)
+
     if await m.get(session, id=user.id):
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
     response = await m.create(session, user)
@@ -45,19 +47,20 @@ async def register(user: Annotated[BaseUser, Body(embed=True)],
     junior_text = 'У этого кандитата не достаточно опыта, предлогаю на должность junior'
     default_text = 'Ознакомьтесь с этим кондидатом:'
     try:
-        if user.work_experience.strip() == 'нет' or float(user.work_experience) <= 0.5:
+        if user.work_experience.strip().lower() == 'нет' or float(user.work_experience) <= 0.5:
             text = junior_text
         else:
             text = default_text
     except ValueError:
         text = default_text
 
-
     user_status = 'нет статуса' if user.status is None else user.status
-    await redis.xadd('users.create', {**user.model_dump(exclude={'is_superuser', 'created_at', 'status'}),
+    await redis.xadd('users.create', {**user.model_dump(exclude={'is_superuser', 'created_at', 'status', 'id'}),
                                       'created_at': user.created_at.timestamp(), 'telegram': link,
                                       'text': text,
-                                      'status': user_status,  # type: ignore
+                                      'send_to_admin': int(send_to_admin),
+                                      'status': user_status,
+                                      'id': telegram.user.id,  # type: ignore
                                       })
     return response
 

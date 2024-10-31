@@ -26,7 +26,7 @@ class ReadUser(BaseUser):
 
 
 class ReadUserResume(ReadUser):
-    resume: ResumeRead
+    resume: ResumeRead | None
 
 
 UpdateUser = make_partial_model(CreateUser)

@@ -54,18 +54,6 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
     async def objs(request: Request, session: AsyncSession = Depends(get_session), ):
         return await manager.list(session)
 
-    @crud.post("/", response_model=read_scheme, responses={
-        **missing_token_or_inactive_user_response,
-        status.HTTP_409_CONFLICT: {
-            "model": ErrorModel,
-        }
-    }, status_code=status.HTTP_201_CREATED, name=f"{name}:new one",
-               dependencies=[Depends(get_current_active_user)],
-               )
-    async def obj(request: Request, objs: create_scheme, session: AsyncSession = Depends(get_session)):
-        response = await manager.create(session, objs)
-
-        await bot.send_message(response.executor_id)
 
     @crud.patch("/{id}", response_model=read_scheme, responses={
         **auth_responses,
@@ -96,7 +84,7 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
                      **not_found_response
                  }, status_code=status.HTTP_204_NO_CONTENT, name=f'{name}:delete one')
     async def obj(request: Request, id: int, session: AsyncSession = Depends(get_session)):
-        obj_in_db = await manager.get_or_404(session, id=id)
+        obj_in_db = await manager.get_or_404(session, id=id, options=joinedload(User.resume))
         await manager.delete(session, obj_in_db)
         return
 
