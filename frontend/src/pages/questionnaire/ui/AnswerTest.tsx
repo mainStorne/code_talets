@@ -1,4 +1,3 @@
-import { Header } from "../../../widgets/header";
 import { useLocation } from 'react-router-dom';
 import styles from "./AnswerTest.module.scss";
 import HeaderText from "./mainTextOfPage/MainTextOfPage";
@@ -22,7 +21,6 @@ export const AnswerTest = () => {
   return (
     <>
       <Net />
-      <Header />
       <div>
         <HeaderText text={'Ваш результат:'} />
       </div>

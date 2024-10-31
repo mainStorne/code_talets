@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import styles from "./Questionnaire.module.scss";
-import { Header } from "../../../widgets/header";
 import CircleToggle from "./circleToggle/CircleToggle";
 import { fetchQuestions } from "../../../shared/api/profTest/getRequestion";
 import { useNavigate } from "react-router-dom";
@@ -104,7 +103,6 @@ export const Questionnaire = () => {
 
   return (
     <>
-      <Header />
       <div>
         <HeaderText text={"Выберите утверждение, которое вам ближе"} />
       </div>
