@@ -1,6 +1,7 @@
 from typing import Generic, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi_sqlalchemy_toolkit.model_manager import ModelT
+from sqlalchemy import select
 
 
 class BaseAdapter(Generic[ModelT]):
@@ -32,3 +33,7 @@ class BaseAdapter(Generic[ModelT]):
     async def delete(self, model: ModelT) -> None:
         await self.session.delete(model)
         await self.session.commit()
+
+    async def get(self, id: int):
+        stmt = select(self.table).where(self.table.id==id)
+        return await self.session.execute(stmt)
