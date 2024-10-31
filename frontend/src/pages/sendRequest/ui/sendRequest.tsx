@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import styles from "./sendRequests.module.scss";
 import { postResumes } from "../../../shared/api/resumes";
 import { UserData } from "../../../shared/api/resumes/resumes";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import InputMask from "react-input-mask";
 
 interface PostResumesResponse {
@@ -19,6 +19,8 @@ interface PostResumesResponse {
 }
 
 export const SendRequest = () => {
+	const location = useLocation();
+  const nextParam = new URLSearchParams(location.search).get("next");
   const [fullName, setFullName] = useState("");
   const [age, setAge] = useState<number | undefined>(undefined);
   const [city, setCity] = useState("");
@@ -41,7 +43,11 @@ export const SendRequest = () => {
       console.log("Данные успешно отправлены:", response);
       setSuccessMessage("Данные успешно отправлены!");
       setErrorMessage("");
-      navigate("/thank_you");
+			if (nextParam){
+				navigate("/welcome_test");
+			} else {
+				navigate("/thank_you");
+			}
     },
     onError: (error) => {
       console.error("Ошибка при отправке данных:", error);
