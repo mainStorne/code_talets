@@ -69,6 +69,7 @@ export const Questionnaire = () => {
       <hr className={styles.hr} />
 
       <div className={styles.divForAnswer}>
+
         {data.items?.map((question, index) => (
           <CircleToggle
             key={question.id}
@@ -81,12 +82,19 @@ export const Questionnaire = () => {
 
       <div className={styles.buttonContainer}>
         {currentQuestionIndex > 0 && (
-          <button className={styles.prevButton} onClick={handlePreviousQuestion}>
-            <img src={prevButtonSvg} alt="Назад" />
+          <button
+            className={styles.prevButton}
+            onClick={handlePreviousQuestion}
+          >
+            <img src={prevButtonSvg} alt="" />
           </button>
         )}
         <button
-          className={styles.nextButton}
+          className={
+            currentQuestionIndex === 0
+              ? styles.nextButton
+              : styles.nextButtonSolo
+          }
           onClick={handleNextQuestion}
         >
           Далее
