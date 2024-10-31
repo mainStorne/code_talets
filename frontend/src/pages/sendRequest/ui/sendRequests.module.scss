@@ -36,7 +36,7 @@
 .custom_checkbox input[type="checkbox"]:checked + span:before {
   content: "";
   position: absolute;
-  top: 2px;
+  top: 0.5px;
   left: 5px;
   width: 6px;
   height: 12px;
@@ -113,6 +113,7 @@ button {
     color: #fff;
     padding: 0 16px;
     transition: border-color 0.3s ease, background-color 0.3s ease;
+    font-size: 16px;
 
     &:hover {
       border-color: #938ff0;
