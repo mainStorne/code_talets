@@ -60,6 +60,31 @@ button {
   font-size: 18px;
   border: none;
   margin-bottom: 47px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #c5c3ff;
+  }
+
+  &:focus {
+    background-color: #c5c3ff;
+    outline: none;
+  }
+}
+
+.inactive_button {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  color: #666666;
+}
+
+.inactive_upload_button {
+  color: #999999;
+  border: 1px dashed #999999;
+}
+
+.inactive_checkbox h3 {
+  color: #999999;
 }
 
 .input_container {
@@ -86,7 +111,18 @@ button {
     border-radius: 4px;
     background: #0d0d0d;
     color: #fff;
-    padding: 0 16px 0 16px;
+    padding: 0 16px;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+
+    &:hover {
+      border-color: #938ff0;
+    }
+
+    &:focus {
+      border-color: #938ff0;
+      background-color: #1a1a1a;
+      outline: none;
+    }
   }
 
   .big_input {

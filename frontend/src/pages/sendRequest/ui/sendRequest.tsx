@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query"; // Importing useMutation from TanStack Query
+import { useState, useEffect } from "react";
+import { useMutation } from "@tanstack/react-query";
 import styles from "./sendRequests.module.scss";
 import { postResumes } from "../../../shared/api/resumes";
 import { UserData } from "../../../shared/api/resumes/resumes";
@@ -20,12 +20,15 @@ export const SendRequest = () => {
   const [age, setAge] = useState<number | undefined>(undefined);
   const [city, setCity] = useState("");
   const [workExperience, setWorkExperience] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const mutation = useMutation<PostResumesResponse, Error, UserData>({
     mutationFn: async (userData: UserData) => {
-      const response = await postResumes(userData);
+      const response = await postResumes(userData, file || undefined);
       return response;
     },
     onSuccess: (response) => {
@@ -39,6 +42,18 @@ export const SendRequest = () => {
       setSuccessMessage("");
     },
   });
+
+  useEffect(() => {
+    const isValid =
+      fullName.trim().split(" ").length === 3 &&
+      age !== undefined &&
+      age > 0 &&
+      city.trim().length > 0 &&
+      workExperience.trim().length > 0 &&
+      file !== null;
+
+    setIsFormValid(isValid);
+  }, [fullName, age, city, workExperience, file]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -55,6 +70,14 @@ export const SendRequest = () => {
     };
 
     mutation.mutate(userData);
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setFileName(selectedFile.name);
+    }
   };
 
   return (
@@ -114,16 +137,25 @@ export const SendRequest = () => {
           Резюме <span>*</span>
         </label>
         <label htmlFor="resume" className={styles.upload_button}>
-          Добавить файл
+          {fileName || "Добавить файл"}
         </label>
-        <input id="resume" className={styles.hidden_input} type="file" />
+        <input
+          id="resume"
+          className={styles.hidden_input}
+          type="file"
+          onChange={handleFileChange}
+        />
       </div>
 
       <h2 className={styles.sopd}>
         Максимальный размер файла - 50МБ. Допустимые форматы - txt, pdf, doc,
         docx, xls, xlsx, ppt, pptx, bmp, gif, jpg, jpeg, png, zip, rar.
       </h2>
-      <label className={styles.custom_checkbox}>
+      <label
+        className={`${styles.custom_checkbox} ${
+          !isFormValid ? styles.inactive_checkbox : ""
+        }`}
+      >
         <input type="checkbox" name="checkbox" required />
         <span></span>
         <h3 className={styles.checkbox_text}>
@@ -134,7 +166,15 @@ export const SendRequest = () => {
 
       {successMessage && <p className={styles.success}>{successMessage}</p>}
       {errorMessage && <p className={styles.error}>{errorMessage}</p>}
-      <button type="submit">Отправить</button>
+      <button
+        type="submit"
+        className={`${styles.submit_button} ${
+          !isFormValid ? styles.inactive_button : ""
+        }`}
+        disabled={!isFormValid}
+      >
+        Отправить
+      </button>
     </form>
   );
 };

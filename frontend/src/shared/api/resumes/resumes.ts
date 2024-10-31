@@ -10,8 +10,30 @@ export interface UserData {
   work_experience?: string;
 }
 
-export const postResumes = async (userData: UserData) => {
-  // Получаем init_data из Telegram WebApp
+export const uploadFile = async (file: File, initData: string) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await axios.post(`${BASE_URL}/users/upload`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "init-data": initData,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Ошибка при загрузке файла:", error);
+    throw error;
+  }
+};
+
+export const postResumes = async (
+  userData: UserData,
+  file?: File,
+  sendToAdmin: boolean = false
+) => {
   const initData = window.Telegram.WebApp.initData;
 
   const requestBody = {
@@ -25,19 +47,23 @@ export const postResumes = async (userData: UserData) => {
       city: userData.city || "string",
       work_experience: userData.work_experience || "string",
     },
-    init_data: initData,
   };
 
   try {
     const response = await axios.post(
-      `${BASE_URL}/api/users/register`,
+      `${BASE_URL}/users/register?send_to_admin=${sendToAdmin}`,
       requestBody,
       {
         headers: {
           "Content-Type": "application/json",
+          "init-data": initData,
         },
       }
     );
+
+    if (response.status === 200 && file) {
+      await uploadFile(file, initData);
+    }
 
     return response.data;
   } catch (error) {
