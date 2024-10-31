@@ -1,9 +1,6 @@
+import { postResumes } from "../../../shared/api/resumes";
 import { useState, useEffect } from "react";
-import {
-  useQuery,
-  useMutation,
-  UseMutationResult,
-} from "@tanstack/react-query";
+import { useQuery, useMutation, UseMutationResult } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { getUserData } from "../../../shared/api/getResumes";
 import { postCase } from "../../../shared/api/sendTestEx/";
@@ -19,9 +16,9 @@ interface CaseData {
 export const SendAnswer = () => {
   const { id } = useParams<{ id: string }>();
   const initData = window.Telegram.WebApp.initData;
-	const [timeRemaining, setTimeRemaining] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
   const [fileLink, setFileLink] = useState<string>("");
+  const [timeRemaining, setTimeRemaining] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [targetDate, setTargetDate] = useState<Date | null>(null);
 
   const {
     data,
@@ -56,40 +53,46 @@ export const SendAnswer = () => {
     mutation.mutate(caseData);
   };
 
-	const calculateTimeRemaining = () => {
-    const targetDate = new Date(); // Установите целевую дату
-    targetDate.setHours(targetDate.getHours() + 1); // Например, 1 час от текущего времени
-    const now = new Date();
-    const difference = targetDate.getTime() - now.getTime();
+  useEffect(() => {
+    const newTargetDate = new Date();
+    newTargetDate.setHours(newTargetDate.getHours() + 1);
+    setTargetDate(newTargetDate);
+  }, []);
 
-    if (difference > 0) {
-      const seconds = Math.floor((difference / 1000) % 60);
-      const minutes = Math.floor((difference / 1000 / 60) % 60);
-      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+  const calculateTimeRemaining = () => {
+    if (targetDate) {
+      const now = new Date();
+      const difference = targetDate.getTime() - now.getTime();
 
-      setTimeRemaining({ days, hours, minutes, seconds });
-    } else {
-      setTimeRemaining({ days: 0, hours: 0, minutes: 0, seconds: 0 }); // Время истекло
+      if (difference > 0) {
+        const seconds = Math.floor((difference / 1000) % 60);
+        const minutes = Math.floor((difference / 1000 / 60) % 60);
+        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+
+        setTimeRemaining({ days, hours, minutes, seconds });
+      } else {
+        setTimeRemaining({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      }
     }
   };
 
-	useEffect(() => {
-    calculateTimeRemaining();
-    const timer = setInterval(calculateTimeRemaining, 1000);
+  useEffect(() => {
+    if (targetDate) {
+      calculateTimeRemaining();
+      const timer = setInterval(calculateTimeRemaining, 1000);
 
-    return () => clearInterval(timer);
-  }, []);
+      return () => clearInterval(timer);
+    }
+  }, [targetDate]);
 
   if (isLoadingUser) return <p>Loading...</p>;
   if (error) return <p>Произошла ошибка: {error.message}</p>;
 
   return (
     <>
-
       <h3 className={styles.mainText}>
         {data?.first_name} {data?.middle_name} {data?.last_name}
-				{/* fjasdlflsaj */}
       </h3>
       <hr className={styles.hre} />
       <h2 className={styles.age}>
@@ -119,10 +122,12 @@ export const SendAnswer = () => {
       <hr className={styles.hre} />
 
       <h3 className={styles.name}>Отправьте задание</h3>
-			<p className={styles.time}>
+      <p className={styles.time}>
         Осталось Времени:{" "}
         <span className={styles.dinamicTime}>
-          {timeRemaining.days}d {timeRemaining.hours}h {timeRemaining.minutes}m {timeRemaining.seconds}s
+          {String(timeRemaining.days).padStart(2, '0')}:
+          {String(timeRemaining.hours).padStart(2, '0')}:
+          {String(timeRemaining.minutes).padStart(2, '0')}
         </span>
       </p>
 

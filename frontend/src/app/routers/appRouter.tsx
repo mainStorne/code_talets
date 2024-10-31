@@ -22,7 +22,7 @@ export const AppRouter = () => {
       <Route path="/answer_test" element={<AnswerTest />} />
       <Route path="/test" element={<Questionnaire />} />
       <Route path="/thank_you" element={<ThanksPage />} />
-			<Route path="/send_answer/" element={<SendAnswer />} />
+			<Route path="/send_answer/:id" element={<SendAnswer />} />
       <Route path="/send_test/:id" element={<SendTestPage />} />
     </Route>
   );

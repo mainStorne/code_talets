@@ -8,17 +8,23 @@ import prevButtonSvg from "../../../assets/prevButton.svg";
 import HeaderText from "./mainTextOfPage/MainTextOfPage";
 import { QuestionData } from "../api/getRequestion";
 import { sendAnswers } from "../api/sendAnswers";
+import { useLoad } from '../../../app/providers/load/loadProvider';
+import Loading from '../../../widgets/loading/ui/loading';
 
 export const Questionnaire = () => {
+	const initData = window.Telegram.WebApp.initData;
+  const { setLoading } = useLoad();
   const navigate = useNavigate();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [data, setData] = useState<QuestionData | null>(null);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
-	const [speciality_id, setSpecialityId] = useState<(number)[]>([]);
+  const [speciality_id, setSpecialityId] = useState<(number)[]>([]);
 
   useEffect(() => {
     const loadQuestions = async () => {
+      setLoading(true);
       await fetchAndSetQuestions(currentQuestionIndex + 1);
+      setLoading(false);
     };
 
     loadQuestions();
@@ -26,11 +32,7 @@ export const Questionnaire = () => {
 
   const fetchAndSetQuestions = async (page: number) => {
     try {
-      const fetchedData = await fetchQuestions(
-        page,
-        4,
-        "query_id=AAHWFXQpAAAAANYVdCneE7xN&user=%7B%22id%22%3A695473622%2C%22first_name%22%3A%22Nikita%22%2C%22last_name%22%3A%22Gilevski%22%2C%22username%22%3A%22tla_nnn%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1730365521&hash=f1d40108f106a78c332fa12eb83918ef674aa934cc5b5cea8b2fd17bbe40a15e"
-      );
+      const fetchedData = await fetchQuestions(page, 4, initData);
 
       const newAnswers = [...answers];
       if (fetchedData.total) {
@@ -57,17 +59,24 @@ export const Questionnaire = () => {
   };
 
   const handleNextQuestion = async () => {
-		if (currentQuestionIndex < (data?.pages ?? 0) - 1) {
-			setCurrentQuestionIndex(currentQuestionIndex + 1);
-		} else {
-			try {
-				const response = await sendAnswers(speciality_id, 'query_id=AAHWFXQpAAAAANYVdCneE7xN&user=%7B%22id%22%3A695473622%2C%22first_name%22%3A%22Nikita%22%2C%22last_name%22%3A%22Gilevski%22%2C%22username%22%3A%22tla_nnn%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1730365521&hash=f1d40108f106a78c332fa12eb83918ef674aa934cc5b5cea8b2fd17bbe40a15e');
-				navigate("/answer_test", { state: { response } });
-			} catch (error) {
-				console.error("Error sending answers:", error);
-			}
-		}
-	};
+    if (answers[currentQuestionIndex] === null) {
+      return;
+    }
+
+    if (currentQuestionIndex < (data?.pages ?? 0) - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      try {
+        setLoading(true);
+        const response = await sendAnswers(speciality_id, initData);
+        setLoading(false);
+        navigate("/answer_test", { state: { response } });
+      } catch (error) {
+        console.error("Error sending answers:", error);
+        setLoading(false);
+      }
+    }
+  };
 
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
@@ -76,23 +85,22 @@ export const Questionnaire = () => {
   };
 
   const handleAnswerSelect = (index: number) => {
-		const newAnswers = [...answers];
-		const newSpecialities = [...speciality_id];
+    const newAnswers = [...answers];
+    const newSpecialities = [...speciality_id];
 
-		if (data && data.items) {
-			const specialityId = data.items[index].speciality_id;
+    if (data && data.items) {
+      const specialityId = data.items[index].speciality_id;
 
-			newAnswers[currentQuestionIndex] = index;
+      newAnswers[currentQuestionIndex] = index;
+      newSpecialities[currentQuestionIndex] = specialityId;
+    }
 
-			newSpecialities[currentQuestionIndex] = specialityId;
-		}
-
-		setAnswers(newAnswers);
-		setSpecialityId(newSpecialities);
-	};
+    setAnswers(newAnswers);
+    setSpecialityId(newSpecialities);
+  };
 
   if (!data || !data.items) {
-    return <div>Загрузка...</div>;
+    return <Loading />;
   }
 
   return (
@@ -109,17 +117,17 @@ export const Questionnaire = () => {
       </div>
       <hr className={styles.hr} />
 
-			<div className={styles.divForAnswer}>
-				{data.items.map((question, index) => {
-					return (
-						<CircleToggle
-							key={question.id}
-							text={question.name}
-							isFilled={answers[currentQuestionIndex] === index}
-							onSelect={() => handleAnswerSelect(index)}
-						/>
-					);
-				})}
+      <div className={styles.divForAnswer}>
+        {data.items.map((question, index) => {
+          return (
+            <CircleToggle
+              key={question.id}
+              text={question.name}
+              isFilled={answers[currentQuestionIndex] === index}
+              onSelect={() => handleAnswerSelect(index)}
+            />
+          );
+        })}
       </div>
 
       <div className={styles.buttonContainer}>

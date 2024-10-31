@@ -1,7 +1,7 @@
-import styles from "./AnswerTest.module.scss";
 import { Header } from "../../../widgets/header";
-import HeaderText from "./mainTextOfPage/MainTextOfPage";
 import { useLocation } from 'react-router-dom';
+import styles from "./AnswerTest.module.scss";
+import HeaderText from "./mainTextOfPage/MainTextOfPage";
 import Net from "./net/Net";
 
 interface ResponseOption {
