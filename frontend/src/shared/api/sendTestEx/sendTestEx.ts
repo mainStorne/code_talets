@@ -9,11 +9,7 @@ interface CaseData {
   exp_at: string;
 }
 
-export const postCase = async (
-  initData: string,
-  caseData: CaseData,
-  file: File
-) => {
+export const postCase = async (initData: string, caseData: CaseData) => {
   try {
     // Create FormData instance
     const formData = new FormData();
@@ -21,18 +17,19 @@ export const postCase = async (
     // Append the `caseData` object as JSON
     formData.append(
       "objs",
-
-      JSON.stringify({
-        creator_id: caseData.creator_id,
-        case_url: caseData.case_url,
-        text: caseData.text,
-        executor_id: caseData.executor_id,
-        exp_at: caseData.exp_at,
-      })
+      new Blob(
+        [
+          JSON.stringify({
+            creator_id: caseData.creator_id,
+            case_url: caseData.case_url,
+            text: caseData.text,
+            executor_id: caseData.executor_id,
+            exp_at: caseData.exp_at,
+          }),
+        ],
+        { type: "application/json" }
+      )
     );
-
-    // Append the file
-    formData.append("file", file);
 
     // Make the POST request
     const response = await axios.post(`${BASE_URL}/cases/`, formData, {

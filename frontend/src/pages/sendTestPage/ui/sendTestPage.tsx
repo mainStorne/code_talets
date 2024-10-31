@@ -9,12 +9,12 @@ import { getUserData } from "../../../shared/api/getResumes";
 import { postCase } from "../../../shared/api/sendTestEx/";
 import styles from "./sendtestpage.module.scss";
 
+// Define the interface for the case data
 interface CaseData {
   case_url: string;
   text: string;
   creator_id: number;
   executor_id: number;
-  start_time: string;
   exp_at: string;
 }
 
@@ -25,8 +25,6 @@ export const SendTestPage = () => {
   const [executionTime, setExecutionTime] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [fileLink, setFileLink] = useState<string>("");
-  const [fileName, setFileName] = useState<string>("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isFormValid, setIsFormValid] = useState(false);
 
   const {
@@ -39,13 +37,8 @@ export const SendTestPage = () => {
     enabled: !!id,
   });
 
-  const mutation: UseMutationResult<
-    unknown,
-    Error,
-    { initData: string; caseData: CaseData; file: File }
-  > = useMutation({
-    mutationFn: ({ initData, caseData, file }) =>
-      postCase(initData, caseData, file),
+  const mutation: UseMutationResult<unknown, Error, CaseData> = useMutation({
+    mutationFn: (caseData: CaseData) => postCase(initData, caseData),
     onSuccess: (response) => {
       console.log("Case posted successfully:", response);
     },
@@ -58,11 +51,9 @@ export const SendTestPage = () => {
     setIsFormValid(
       executionTime.trim().length > 0 &&
         description.trim().length > 0 &&
-        fileLink.trim().length > 0 &&
-        fileName.trim().length > 0 &&
-        !!selectedFile
+        fileLink.trim().length > 0
     );
-  }, [executionTime, description, fileLink, fileName, selectedFile]);
+  }, [executionTime, description, fileLink]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,21 +63,10 @@ export const SendTestPage = () => {
       text: description,
       creator_id: data?.id || 0,
       executor_id: Number(id),
-      start_time: new Date().toISOString(),
       exp_at: new Date(executionTime).toISOString(),
     };
 
-    if (selectedFile) {
-      mutation.mutate({ initData, caseData, file: selectedFile });
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFileName(file.name);
-      setSelectedFile(file);
-    }
+    mutation.mutate(caseData);
   };
 
   if (isLoadingUser) return <p>Loading...</p>;
@@ -153,21 +133,6 @@ export const SendTestPage = () => {
           />
         </div>
         <div className={styles.input_container}>
-          <label htmlFor="file">
-            Тестовое задание (файл) <span>*</span>
-          </label>
-          <label htmlFor="file" className={styles.upload_button}>
-            {fileName || "Добавить файл"}
-          </label>
-          <input
-            id="file"
-            className={styles.hidden_input}
-            type="file"
-            onChange={handleFileChange}
-            required
-          />
-        </div>
-        <div className={styles.input_container}>
           <label htmlFor="fileLink">
             Тестовое задание (ссылка) <span>*</span>
           </label>
@@ -180,14 +145,6 @@ export const SendTestPage = () => {
             required
           />
         </div>
-        {mutation.isError && (
-          <p className={styles.error}>
-            Произошла ошибка при отправке: {mutation.error.message}
-          </p>
-        )}
-        {mutation.isSuccess && (
-          <p className={styles.success}>Задание успешно отправлено!</p>
-        )}
         <button
           type="submit"
           className={`${styles.submit_button} ${
