@@ -2,7 +2,7 @@ import axios from "axios";
 import BASE_URL from "../../../shared/api/base";
 
 export interface QuestionData {
-  items?: Array<{
+  items: Array<{
     name: string;
     speciality_id: number;
     id: number;
@@ -15,25 +15,24 @@ export interface QuestionData {
 
 export const fetchQuestions = async (
   page: number,
-  size: number = 4, // Default size to 4
-  initData: string // Pass initData as an argument
+  size: number = 4,
+  initData: string
 ): Promise<QuestionData> => {
   try {
     const response = await axios.get(`${BASE_URL}/quote/`, {
       params: {
-        page, // shorthand for page: page
-        size, // shorthand for size: size
+        page,
+        size,
       },
       headers: {
         "init-data": initData,
-        "ngrok-skip-browser-warning": "69420", // Use initData from the Telegram WebApp
+        "ngrok-skip-browser-warning": "69420",
       },
     });
 
-    console.log("Response data:", response.data);
-    return response.data; // Return the response data
+    return response.data;
   } catch (error) {
     console.error("Error fetching questions:", error);
-    throw error; // Rethrow the error for handling further up the call stack
+    throw error;
   }
 };
