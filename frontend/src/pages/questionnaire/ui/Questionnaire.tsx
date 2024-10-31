@@ -17,12 +17,18 @@ export const Questionnaire = () => {
   useEffect(() => {
     const loadQuestions = async () => {
       try {
-        const fetchedData = await fetchQuestions(1, 4, 'query_id=AAHWFXQpAAAAANYVdCneE7xN&user=%7B%22id%22%3A695473622%2C%22first_name%22%3A%22Nikita%22%2C%22last_name%22%3A%22Gilevski%22%2C%22username%22%3A%22tla_nnn%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1730365521&hash=f1d40108f106a78c332fa12eb83918ef674aa934cc5b5cea8b2fd17bbe40a15e');
+        console.log("Fetching questions...");
+        const fetchedData = await fetchQuestions(
+          1,
+          4,
+          "query_id=AAHWFXQpAAAAANYVdCneE7xN&user=%7B%22id%22%3A695473622%2C%22first_name%22%3A%22Nikita%22%2C%22last_name%22%3A%22Gilevski%22%2C%22username%22%3A%22tla_nnn%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1730365521&hash=f1d40108f106a78c332fa12eb83918ef674aa934cc5b5cea8b2fd17bbe40a15e"
+        );
 
+        console.log("Fetched data:", fetchedData);
         setData(fetchedData);
         setAnswers(Array(fetchedData.total).fill(null));
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching questions:", err);
       }
     };
 
@@ -30,10 +36,15 @@ export const Questionnaire = () => {
   }, []);
 
   const handleNextQuestion = () => {
+    console.log(
+      "Current question index before increment:",
+      currentQuestionIndex
+    );
     if (currentQuestionIndex < (data?.total ?? 0) - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
+      console.log("Moving to next question:", currentQuestionIndex + 1);
     } else {
-      console.log(answers);
+      console.log("Final answers:", answers);
       navigate("/answer_test");
     }
   };
@@ -41,13 +52,21 @@ export const Questionnaire = () => {
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
+      console.log("Moving to previous question:", currentQuestionIndex - 1);
     }
   };
 
   const handleAnswerSelect = (index: number) => {
     const newAnswers = [...answers];
-    newAnswers[currentQuestionIndex] = newAnswers[currentQuestionIndex] === index ? null : index;
+    newAnswers[currentQuestionIndex] =
+      newAnswers[currentQuestionIndex] === index ? null : index;
     setAnswers(newAnswers);
+    console.log(
+      "Selected answer for question index",
+      currentQuestionIndex,
+      "is:",
+      newAnswers[currentQuestionIndex]
+    );
   };
 
   if (!data) {
@@ -81,12 +100,19 @@ export const Questionnaire = () => {
 
       <div className={styles.buttonContainer}>
         {currentQuestionIndex > 0 && (
-          <button className={styles.prevButton} onClick={handlePreviousQuestion}>
-            <img src={prevButtonSvg} alt="Назад" />
+          <button
+            className={styles.prevButton}
+            onClick={handlePreviousQuestion}
+          >
+            <img src={prevButtonSvg} alt="" />
           </button>
         )}
         <button
-          className={styles.nextButton}
+          className={
+            currentQuestionIndex === 0
+              ? styles.nextButton
+              : styles.nextButtonSolo
+          }
           onClick={handleNextQuestion}
         >
           Далее
