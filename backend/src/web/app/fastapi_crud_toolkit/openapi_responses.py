@@ -20,6 +20,12 @@ already_exist = {
     }
 }
 
+no_content = {
+    status.HTTP_204_NO_CONTENT: {
+        'description': ''
+    }
+}
+
 case_expired_response = {
     status.HTTP_409_CONFLICT: {
         'description': 'Case expired'

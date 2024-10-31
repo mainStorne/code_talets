@@ -9,6 +9,7 @@ from .base import Base, IDMixin
 
 class User(IDMixin, Base):
     __tablename__ = 'users'
+    phone_number: Mapped[int] = mapped_column(String(length=20))
     first_name: Mapped[str] = mapped_column(
         String(length=320)
     )

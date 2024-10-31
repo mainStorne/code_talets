@@ -2,12 +2,17 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
+
 class MessageBase(BaseModel):
     user_id: int
 
 
+class ResumeMessage(MessageBase):
+    text: str
+    url: str
 
-class UserCreateMessage(BaseModel):
+
+class CreateUserMessage(BaseModel):
     id: int
     phone_number: str
     first_name: str
@@ -26,8 +31,3 @@ class UserCreateMessage(BaseModel):
     def to_list(self):
         # return [fio, phoneNumber, age, city, created_at, telegram]
         return [self.fio, self.phone_number, self.age, self.city, self.created_at, self.telegram]
-
-#
-# class UserCreateMessage(MessageBase):
-#     text: str
-#     url: str
