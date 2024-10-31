@@ -41,7 +41,6 @@ export const SendTestPage = () => {
     enabled: !!id,
   });
 
-  // Mutation for posting case data
   const mutation: UseMutationResult<unknown, Error, CaseData> = useMutation({
     mutationFn: (caseData: CaseData) => postCase(initData, caseData),
     onSuccess: (response) => {
@@ -52,7 +51,6 @@ export const SendTestPage = () => {
     },
   });
 
-  // Update form validity when any field changes
   useEffect(() => {
     setIsFormValid(
       executionTime.trim().length > 0 &&
