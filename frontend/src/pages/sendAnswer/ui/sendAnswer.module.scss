@@ -1,26 +1,26 @@
-.hre{
-	color: rgba(147, 143, 240, 1);
+.hre {
+  color: rgba(147, 143, 240, 1);
 }
 
-.mainText{
-	margin-bottom: 30px;
+.mainText {
+  margin-bottom: 30px;
 }
 
-.name{
-	margin-top: 30px;
-	margin-bottom: 30px;
+.name {
+  margin-top: 30px;
+  margin-bottom: 30px;
 }
 
-.age{
-	margin-top: 25px;
+.age {
+  margin-top: 25px;
 }
 
-.time{
-	color: #999999;
+.time {
+  color: #999999;
 }
 
-.dinamicTime{
-	color: white;
+.dinamicTime {
+  color: white;
 }
 
 .custom_checkbox {
@@ -60,6 +60,12 @@
   font-size: 12px;
   font-weight: 400;
   border: none;
+}
+
+.error {
+  justify-self: center;
+  padding-top: 20px;
+  color: red;
 }
 
 button {

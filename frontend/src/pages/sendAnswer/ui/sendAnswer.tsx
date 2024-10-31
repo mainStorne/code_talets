@@ -1,11 +1,17 @@
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import styles from "./sendAnswer.module.scss";
 import { getUserData } from "../../../shared/api/getResumes/";
+import { PostDoneEx } from "../../../shared/api/answerToTestEx";
+import { useState } from "react";
 
 export const SendAnswer = () => {
   const { id } = useParams();
   const initData = window.Telegram.WebApp.initData;
+  const [fileLink, setFileLink] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     data: userData,
@@ -18,6 +24,36 @@ export const SendAnswer = () => {
     retry: false,
     refetchOnWindowFocus: false,
   });
+
+  const mutation = useMutation({
+    mutationFn: (fileLink: string) =>
+      PostDoneEx(initData, {
+        case_url: fileLink,
+        answer_to_id: Number(id),
+      }),
+    onSuccess: () => {
+      setSuccessMsg("Тестовое задание успешно отправлено!");
+      setErrorMsg("");
+      setIsSubmitting(false);
+    },
+    onError: () => {
+      setErrorMsg("Ошибка при отправке тестового задания.");
+      setSuccessMsg("");
+      setIsSubmitting(false);
+    },
+  });
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    setErrorMsg("");
+    setSuccessMsg("");
+    if (!fileLink) {
+      setErrorMsg("Пожалуйста, укажите ссылку на тестовое задание.");
+      return;
+    }
+    setIsSubmitting(true);
+    mutation.mutate(fileLink);
+  };
 
   if (isLoading) return <p>Загрузка данных...</p>;
   if (error)
@@ -56,26 +92,35 @@ export const SendAnswer = () => {
         </span>
       </h2>
       <hr className={styles.hre} />
-
       <h3 className={styles.name}>Отправьте задание</h3>
       <p className={styles.time}>
         Осталось Времени:
-        <span className={styles.dinamicTime}>{/* Оставшееся время */}</span>
+        <span className={styles.dinamicTime}></span>
       </p>
-
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className={styles.input_container}>
           <label htmlFor="fileLink">
             Ваше тестовое задание (ссылка) <span>*</span>
           </label>
-          <input className={styles.input} type="text" id="fileLink" />
+          <input
+            className={styles.input}
+            type="text"
+            id="fileLink"
+            value={fileLink}
+            onChange={(e) => setFileLink(e.target.value)}
+          />
         </div>
-        <button type="submit" className={styles.submit_button}>
-          Отправить
+        {errorMsg && <p className={styles.error}>{errorMsg}</p>}
+        {successMsg && <p className={styles.success}>{successMsg}</p>}
+        <button
+          type="submit"
+          className={styles.submit_button}
+          disabled={isSubmitting}
+          style={{ backgroundColor: isSubmitting ? "grey" : undefined }}
+        >
+          {isSubmitting ? "Загрузка..." : "Отправить"}
         </button>
       </form>
-      <p className={styles.error}>{/* Сообщение об ошибке */}</p>
-      <p className={styles.success}>{/* Сообщение об успешной отправке */}</p>
     </>
   );
 };
