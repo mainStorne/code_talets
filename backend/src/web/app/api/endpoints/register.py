@@ -55,12 +55,11 @@ async def register(user: Annotated[BaseUser, Body(embed=True)],
         text = default_text
 
     user_status = 'нет статуса' if user.status is None else user.status
-    await redis.xadd('users.create', {**user.model_dump(exclude={'is_superuser', 'created_at', 'status', 'id'}),
+    await redis.xadd('users.create', {**user.model_dump(exclude={'is_superuser', 'created_at', 'status'}),
                                       'created_at': user.created_at.timestamp(), 'telegram': link,
                                       'text': text,
                                       'send_to_admin': int(send_to_admin),
                                       'status': user_status,
-                                      'id': telegram.user.id,  # type: ignore
                                       })
     return response
 

@@ -10,7 +10,6 @@ from pydantic.main import IncEx
 
 class BaseCase(BaseModel):
     case_url: str | None
-    text: str | None
 
 
 class CaseCreate(BaseCase):
@@ -33,7 +32,7 @@ CaseUpdate = make_partial_model(CaseCreate)
 
 class CaseAnswer(BaseCase):
     answer_to_id: int
-    created_at: datetime
+    created_at: datetime = datetime.now(tz=timezone.utc)
 
 
 class CaseAnswerRead(CaseAnswer):

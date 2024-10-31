@@ -39,7 +39,6 @@ from pydantic.main import IncEx
 
 class BaseCase(Message):
     case_url: str | None
-    text: str | None
 
 
 
@@ -57,8 +56,8 @@ class CaseRead(CaseCreate):
 
 
 class CaseAnswer(BaseCase):
-    case_url: HttpUrl | None
-    text: str | None
+    id: int
+    case_url: str | None
     answer_to_id: int
     user_id: int
     created_at: datetime
