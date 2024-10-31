@@ -14,6 +14,18 @@ not_a_superuser_response = {
     },
 }
 
+already_exist = {
+    status.HTTP_422_UNPROCESSABLE_ENTITY: {
+        'description': 'Already exist'
+    }
+}
+
+case_expired_response = {
+    status.HTTP_409_CONFLICT: {
+        'description': 'Case expired'
+    }
+}
+
 missing_token_or_inactive_user_response = {
     status.HTTP_401_UNAUTHORIZED: {
         "description": "Missing token or inactive user.",

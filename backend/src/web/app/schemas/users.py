@@ -2,6 +2,7 @@ from datetime import datetime
 from fastapi_sqlalchemy_toolkit import make_partial_model
 
 from pydantic import BaseModel, Field
+from typing import Literal
 
 
 class BaseUser(BaseModel):
@@ -12,6 +13,7 @@ class BaseUser(BaseModel):
     is_superuser: bool = False
     age: int = Field(le=200, ge=13)
     city: str
+    status: Literal['хороший кондидат', 'отличный', 'не подходит'] | None = None
     work_experience: str
 
 

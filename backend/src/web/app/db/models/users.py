@@ -28,7 +28,9 @@ class User(IDMixin, Base):
     work_experience: Mapped[str] = mapped_column(
         String(length=300)
     )
-    resumes: Mapped[list['UserResume']] = relationship(back_populates='user')
+
+    status: Mapped[str] = mapped_column(String(length=50), nullable=True)
+    resumes: Mapped[list['UserResume']] = relationship(back_populates='user', cascade='all, delete')
 
 
 
@@ -36,4 +38,4 @@ class UserResume(IDMixin, Base):
     __tablename__ = 'user_resumes'
     resume_url: Mapped[str] = mapped_column(String(length=500))
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
-    user: Mapped[User] = relationship(back_populates='resumes')
+    user: Mapped[User] = relationship(back_populates='resumes', cascade='all, delete')

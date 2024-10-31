@@ -1,0 +1,23 @@
+.divForCircleToggle{
+	margin-top: 15px;
+	display: flex;
+	align-items: center;
+}
+
+.circleToggle{
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	border: 2px solid rgba(147, 143, 240, 1);
+	cursor: pointer;
+	transition: background-color 0.3s;
+	flex-shrink: 0;
+}
+
+.full{
+	background: rgba(147, 143, 240, 1);
+}
+
+.answerText{
+	margin-left: 20px;
+}

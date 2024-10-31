@@ -12,5 +12,7 @@ class RedisClient(Redis):
                         {'user_id': user.id, 'email': user.email, 'is_active': int(user.is_active),
                          'is_superuser': int(user.is_superuser), 'is_verified': int(user.is_verified)})
 
-    async def xsend(self, user_id: int, data: dict):
-        await self.xadd(f'user:{user_id}', data)
+
+    async def xsend(self,
+                    data: dict[bytes | memoryview | str | int | float, bytes | memoryview | str | int | float]):
+        await self.xadd(f'user.action', data)
