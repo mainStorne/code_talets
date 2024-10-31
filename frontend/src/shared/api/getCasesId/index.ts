@@ -1,0 +1,1 @@
+export { GetCaseData } from "./getCasesId";

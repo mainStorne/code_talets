@@ -3,7 +3,8 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import styles from "./sendAnswer.module.scss";
 import { getUserData } from "../../../shared/api/getResumes/";
 import { PostDoneEx } from "../../../shared/api/answerToTestEx";
-import { useState } from "react";
+import { GetCaseData } from "../../../shared/api/getCasesId";
+import { useState, useEffect } from "react";
 
 export const SendAnswer = () => {
   const { id } = useParams();
@@ -12,15 +13,36 @@ export const SendAnswer = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [executorId, setExecutorId] = useState<number | null>(null);
+
+  const {
+    data: caseData,
+    isLoading: isLoadingCase,
+    error: caseError,
+  } = useQuery({
+    queryKey: ["caseData", id],
+    queryFn: () => GetCaseData({ id: Number(id), initData }),
+    enabled: !!id,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+
+  useEffect(() => {
+    if (caseData) {
+      const { executor_id } = caseData;
+      setExecutorId(executor_id);
+      console.log("Executor ID:", executor_id);
+    }
+  }, [caseData]);
 
   const {
     data: userData,
-    isLoading,
-    error,
+    isLoading: isLoadingUser,
+    error: userError,
   } = useQuery({
-    queryKey: ["userData", id],
-    queryFn: () => getUserData(Number(id), initData),
-    enabled: !!id,
+    queryKey: ["userData", executorId],
+    queryFn: () => getUserData(Number(executorId), initData),
+    enabled: executorId !== null,
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -55,8 +77,11 @@ export const SendAnswer = () => {
     mutation.mutate(fileLink);
   };
 
-  if (isLoading) return <p>Загрузка данных...</p>;
-  if (error)
+  if (isLoadingCase) return <p>Загрузка данных...</p>;
+  if (caseError) return <p className={styles.error}>error</p>;
+
+  if (isLoadingUser) return <p>Загрузка данных пользователя...</p>;
+  if (userError)
     return <p className={styles.error}>Ошибка загрузки данных пользователя</p>;
 
   return (
