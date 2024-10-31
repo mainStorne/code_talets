@@ -14,6 +14,8 @@ export const SendAnswer = () => {
   const [successMsg, setSuccessMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [executorId, setExecutorId] = useState<number | null>(null);
+  const [expAt, setExpAt] = useState<Date | null>(null);
+  const [remainingTime, setRemainingTime] = useState<string>("");
 
   const {
     data: caseData,
@@ -29,11 +31,34 @@ export const SendAnswer = () => {
 
   useEffect(() => {
     if (caseData) {
-      const { executor_id } = caseData;
+      const { executor_id, exp_at } = caseData;
       setExecutorId(executor_id);
+      setExpAt(new Date(exp_at));
       console.log("Executor ID:", executor_id);
     }
   }, [caseData]);
+
+  useEffect(() => {
+    if (expAt) {
+      const updateRemainingTime = () => {
+        const now = new Date();
+        const diff = expAt.getTime() - now.getTime();
+
+        if (diff <= 0) {
+          setRemainingTime("Время вышло");
+        } else {
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          setRemainingTime(`${hours} ч ${minutes} мин`);
+        }
+      };
+
+      updateRemainingTime();
+      const intervalId = setInterval(updateRemainingTime, 60000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [expAt]);
 
   const {
     data: userData,
@@ -77,8 +102,9 @@ export const SendAnswer = () => {
     mutation.mutate(fileLink);
   };
 
-  if (isLoadingCase) return <p>Загрузка данных...</p>;
-  if (caseError) return <p className={styles.error}>error</p>;
+  if (isLoadingCase) return <p>Загрузка данных дела...</p>;
+  if (caseError)
+    return <p className={styles.error}>Ошибка загрузки данных дела</p>;
 
   if (isLoadingUser) return <p>Загрузка данных пользователя...</p>;
   if (userError)
@@ -120,7 +146,7 @@ export const SendAnswer = () => {
       <h3 className={styles.name}>Отправьте задание</h3>
       <p className={styles.time}>
         Осталось Времени:
-        <span className={styles.dinamicTime}></span>
+        <span className={styles.dinamicTime}>{remainingTime}</span>
       </p>
       <form onSubmit={handleSubmit}>
         <div className={styles.input_container}>
@@ -137,17 +163,10 @@ export const SendAnswer = () => {
         </div>
         {errorMsg && <p className={styles.error}>{errorMsg}</p>}
         {successMsg && <p className={styles.success}>{successMsg}</p>}
-        <button
-          type="submit"
-          className={styles.submit_button}
-          disabled={isSubmitting}
-          style={{ backgroundColor: isSubmitting ? "grey" : undefined }}
-        >
-          {isSubmitting ? "Загрузка..." : "Отправить"}
+        <button className={styles.button} type="submit" disabled={isSubmitting}>
+          Отправить
         </button>
       </form>
     </>
   );
 };
-
-export default SendAnswer;
