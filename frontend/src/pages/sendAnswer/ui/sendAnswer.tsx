@@ -43,7 +43,6 @@ export const SendAnswer = () => {
       const updateRemainingTime = () => {
         const now = new Date();
         const diff = expAt.getTime() - now.getTime();
-
         if (diff <= 0) {
           setRemainingTime("Время вышло");
         } else {
@@ -52,10 +51,8 @@ export const SendAnswer = () => {
           setRemainingTime(`${hours} ч ${minutes} мин`);
         }
       };
-
       updateRemainingTime();
       const intervalId = setInterval(updateRemainingTime, 60000);
-
       return () => clearInterval(intervalId);
     }
   }, [expAt]);
@@ -102,10 +99,8 @@ export const SendAnswer = () => {
     mutation.mutate(fileLink);
   };
 
-  if (isLoadingCase) return <p>Загрузка данных дела...</p>;
-  if (caseError)
-    return <p className={styles.error}>Ошибка загрузки данных дела</p>;
-
+  if (isLoadingCase) return <p>Загрузка данных</p>;
+  if (caseError) return <p className={styles.error}>Ошибка загрузки данных </p>;
   if (isLoadingUser) return <p>Загрузка данных пользователя...</p>;
   if (userError)
     return <p className={styles.error}>Ошибка загрузки данных пользователя</p>;
@@ -164,9 +159,11 @@ export const SendAnswer = () => {
         {errorMsg && <p className={styles.error}>{errorMsg}</p>}
         {successMsg && <p className={styles.success}>{successMsg}</p>}
         <button className={styles.button} type="submit" disabled={isSubmitting}>
-          Отправить
+          {isSubmitting ? "Отправка..." : "Отправить"}
         </button>
       </form>
     </>
   );
 };
+
+export default SendAnswer;
