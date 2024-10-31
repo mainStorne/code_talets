@@ -6,10 +6,14 @@ import { fetchQuestions } from "../../../shared/api/profTest/getRequestion";
 import { useNavigate } from "react-router-dom";
 import prevButtonSvg from "../../../assets/prevButton.svg";
 import HeaderText from "./mainTextOfPage/MainTextOfPage";
+import { useLoad } from '../../../app/providers/load/loadProvider';
+import Loading from '../../../widgets/loading/ui/loading';
 import { QuestionData } from "../../../shared/api/profTest/getRequestion";
 import { sendAnswers } from "../../../shared/api/profTest/sendAnswers";
 
 export const Questionnaire = () => {
+	const initData = window.Telegram.WebApp.initData;
+  const { setLoading } = useLoad();
   const navigate = useNavigate();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [data, setData] = useState<QuestionData | null>(null);
@@ -18,7 +22,9 @@ export const Questionnaire = () => {
 
   useEffect(() => {
     const loadQuestions = async () => {
+      setLoading(true);
       await fetchAndSetQuestions(currentQuestionIndex + 1);
+      setLoading(false);
     };
 
     loadQuestions();
@@ -26,11 +32,7 @@ export const Questionnaire = () => {
 
   const fetchAndSetQuestions = async (page: number) => {
     try {
-      const fetchedData = await fetchQuestions(
-        page,
-        4,
-        "query_id=AAHWFXQpAAAAANYVdCneE7xN&user=%7B%22id%22%3A695473622%2C%22first_name%22%3A%22Nikita%22%2C%22last_name%22%3A%22Gilevski%22%2C%22username%22%3A%22tla_nnn%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1730365521&hash=f1d40108f106a78c332fa12eb83918ef674aa934cc5b5cea8b2fd17bbe40a15e"
-      );
+      const fetchedData = await fetchQuestions(page, 4, initData);
 
       const newAnswers = [...answers];
       if (fetchedData.total) {
@@ -55,17 +57,23 @@ export const Questionnaire = () => {
       console.error("Error fetching questions:", err);
     }
   };
-  const initData = window.Telegram.WebApp.initData;
 
   const handleNextQuestion = async () => {
+    if (answers[currentQuestionIndex] === null) {
+      return;
+    }
+
     if (currentQuestionIndex < (data?.pages ?? 0) - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       try {
+        setLoading(true);
         const response = await sendAnswers(speciality_id, initData);
+        setLoading(false);
         navigate("/answer_test", { state: { response } });
       } catch (error) {
         console.error("Error sending answers:", error);
+        setLoading(false);
       }
     }
   };
@@ -84,16 +92,14 @@ export const Questionnaire = () => {
       const specialityId = data.items[index].speciality_id;
 
       newAnswers[currentQuestionIndex] = index;
-
       newSpecialities[currentQuestionIndex] = specialityId;
     }
-
     setAnswers(newAnswers);
     setSpecialityId(newSpecialities);
   };
 
   if (!data || !data.items) {
-    return <div>Загрузка...</div>;
+    return <Loading />;
   }
 
   return (
