@@ -1,19 +1,70 @@
-import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router-dom"; // Import useParams
+import { useState } from "react";
+import {
+  useQuery,
+  useMutation,
+  UseMutationResult,
+} from "@tanstack/react-query";
+import { useParams } from "react-router-dom";
 import { getUserData } from "../../../shared/api/getResumes";
+import { postCase } from "../../../shared/api/sendTestEx/";
 import styles from "./sendtestpage.module.scss";
+
+// Define the interface for the case data
+interface CaseData {
+  case_url: string;
+  text: string;
+  creator_id: number;
+  executor_id: number;
+  start_time: string;
+  exp_at: string;
+}
 
 export const SendTestPage = () => {
   const { id } = useParams<{ id: string }>();
   const initData = window.Telegram.WebApp.initData;
 
-  const { data, error, isLoading } = useQuery({
+  // Form state
+  const [executionTime, setExecutionTime] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [fileLink, setFileLink] = useState<string>("");
+
+  const {
+    data,
+    error,
+    isLoading: isLoadingUser,
+  } = useQuery({
     queryKey: ["userData", id, initData],
     queryFn: () => getUserData(Number(id), initData),
     enabled: !!id,
   });
 
-  if (isLoading) return <p>Loading...</p>;
+  // Mutation for posting case data
+  const mutation: UseMutationResult<unknown, Error, CaseData> = useMutation({
+    mutationFn: (caseData: CaseData) => postCase(initData, caseData),
+    onSuccess: (response) => {
+      console.log("Case posted successfully:", response);
+    },
+    onError: (error) => {
+      console.error("Error submitting case:", error);
+    },
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const caseData: CaseData = {
+      case_url: fileLink,
+      text: description,
+      creator_id: data?.id || 0,
+      executor_id: Number(id),
+      start_time: new Date().toISOString(),
+      exp_at: executionTime,
+    };
+
+    mutation.mutate(caseData);
+  };
+
+  if (isLoadingUser) return <p>Loading...</p>;
   if (error) return <p>Произошла ошибка: {error.message}</p>;
 
   return (
@@ -35,7 +86,7 @@ export const SendTestPage = () => {
         Опыт работы: <span>{data?.work_experience}</span>
       </h2>
       <h2>
-        Резюме:
+        Резюме:{" "}
         <span>
           <a
             href={data?.resume.resume_url}
@@ -49,39 +100,68 @@ export const SendTestPage = () => {
       <hr className={styles.hre} />
 
       <h1 className={styles.name}>Заполните форму</h1>
-      <div className={styles.input_container}>
-        <label htmlFor="time">
-          Время выполнения <span>*</span>
-        </label>
-        <input className={styles.input} type="text" />
-      </div>
-      <div className={styles.input_container}>
-        <label htmlFor="description">
-          Описание задания и рекомендации <span>*</span>
-        </label>
-        <input className={styles.input} type="text" />
-      </div>
-      <div className={styles.input_container}>
-        <label htmlFor="resume">
-          Тестовое задание (файл) <span>*</span>
-        </label>
-        <label htmlFor="resume" className={styles.upload_button}>
-          Добавить файл
-        </label>
-        <input id="resume" className={styles.hidden_input} type="file" />
-      </div>
-      <div className={styles.input_container}>
-        <label htmlFor="link">
-          Тестовое задание (ссылка) <span>*</span>
-        </label>
-        <input className={styles.input} type="text" />
-      </div>
-      <button
-        type="submit"
-        className={`${styles.submit_button} ${styles.inactive_button}`}
-      >
-        Отправить
-      </button>
+      <form onSubmit={handleSubmit}>
+        <div className={styles.input_container}>
+          <label htmlFor="executionTime">
+            Дата окончания <span>*</span>
+          </label>
+          <input
+            className={styles.input}
+            type="text"
+            id="executionTime"
+            value={executionTime}
+            onChange={(e) => setExecutionTime(e.target.value)}
+          />
+        </div>
+        <div className={styles.input_container}>
+          <label htmlFor="description">
+            Описание задания и рекомендации <span>*</span>
+          </label>
+          <input
+            className={styles.input}
+            type="text"
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </div>
+        <div className={styles.input_container}>
+          <label htmlFor="file">
+            Тестовое задание (файл) <span>*</span>
+          </label>
+          <label htmlFor="file" className={styles.upload_button}>
+            Добавить файл
+          </label>
+          <input
+            id="file"
+            className={styles.hidden_input}
+            type="file"
+            onChange={(e) => e.target.files}
+          />
+        </div>
+        <div className={styles.input_container}>
+          <label htmlFor="fileLink">
+            Тестовое задание (ссылка) <span>*</span>
+          </label>
+          <input
+            className={styles.input}
+            type="text"
+            id="fileLink"
+            onChange={(e) => setFileLink(e.target.value)}
+          />
+        </div>
+        <button type="submit" className={styles.submit_button}>
+          Отправить
+        </button>
+      </form>
+      {mutation.isError && (
+        <p className={styles.error}>
+          Произошла ошибка при отправке: {mutation.error.message}
+        </p>
+      )}
+      {mutation.isSuccess && (
+        <p className={styles.success}>Задание успешно отправлено!</p>
+      )}
     </>
   );
 };

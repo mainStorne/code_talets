@@ -26,7 +26,7 @@ export const getUserData = async (
   initData: string
 ): Promise<UserData> => {
   try {
-    const response = await axios.get<UserData>(`${BASE_URL}/users/${id}/`, {
+    const response = await axios.get<UserData>(`${BASE_URL}/users/${id}`, {
       headers: {
         "Content-Type": "application/json",
         "init-data": initData,
