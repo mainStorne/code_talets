@@ -1,14 +1,18 @@
-import requests
+import httpx
 from bs4 import BeautifulSoup
 
+
+# def get_vacancies() -> list[str]:
 url = 'https://career.kode.ru/career/'
-response = requests.get(url)
+response = httpx.get(url, verify=False)
 
 if response.status_code == 200:
-    soup = BeautifulSoup(response.text, 'html.parser')
-    # Пример: извлечение всех заголовков h1
-    headings = soup.find_all('h1')
-    for heading in headings:
-        print(heading.text)
+		soup = BeautifulSoup(response.text, 'html.parser')
+		headings = soup.find_all('a')
+		for heading in headings:
+			print(heading.text)
 else:
-    print('Ошибка при запросе:', response.status_code)
+		print('Ошибка при запросе:', response.status_code)
+
+# get_vacancies()
+print('a')
