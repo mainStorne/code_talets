@@ -10,7 +10,7 @@ class RedisClient(Redis):
         await self.xadd(f'{self.service}.{action}', {'user_id': user.id})
 
     async def listen_for_stream(self) -> AsyncGenerator[str, dict]:
-        ids = {'user.action': '$', 'user.resumes': '$'}
+        ids = {'user.resumes': '$'}
         while True:
             response = await self.xread(ids, count=1, block=0)
             key, messages = response[0]
