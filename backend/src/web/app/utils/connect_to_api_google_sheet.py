@@ -7,7 +7,7 @@ from gspread import spreadsheet, Worksheet
 from pathlib import Path
 
 path = Path(__file__).absolute().parent
-
+ROW_OFFSET = 1
 
 def init_google_sheet():
     logging.info(path)
@@ -15,6 +15,13 @@ def init_google_sheet():
     wks = gc.open("kode_telegtam_bot").sheet1
     return wks
 
+def delete(count_users: int, wks: Worksheet):
+    wks.clear(f'A{ROW_OFFSET+count_users}:G{ROW_OFFSET+count_users}')
+    logging.info('deleted')
+
+def update(count_users: int, status: str, wks: Worksheet):
+    wks.update_acell(f'G{ROW_OFFSET + count_users}', status)
+    logging.info('updated')
 
 def connect_to_db():
     print("Подключение к базе данных успешно установлено.")
@@ -40,6 +47,6 @@ def writeDataToGoogleSheet(wks: Worksheet, data: list[str]) -> None:
         data = wks.get_all_values()
         last_row = len(data)
 
-        range_name = 'A' + str(last_row + 1) + ':F' + str(last_row + 1)
+        range_name = 'A' + str(last_row + 1) + ':G' + str(last_row + 1)
         wks.update(range_name, new_data)
         logging.info("Данные успешно записаны в Google Sheets.")

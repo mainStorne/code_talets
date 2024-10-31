@@ -29,9 +29,6 @@ class CaseAnswer(IDMixin, Base):
     case_url: Mapped[str] = mapped_column(
         String(), nullable=True
     )
-    text: Mapped[str] = mapped_column(
-        String(), nullable=True
-    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True)
     )

@@ -21,7 +21,7 @@ class Worker:
         async with async_session_maker() as session:
             admin = select(User).where(User.is_superuser == True)
             admins = await session.scalars(admin)
-            logging.info(f'admin recieve {type(admins)} {admins}')
+            logging.info(f'Admin recieve {type(admins)} {admins}')
             if not admins:
                 return
 
@@ -33,23 +33,25 @@ class Worker:
             await bot.send_message(admin.id, text='Вам сообщение!', reply_markup=builder.as_markup())
 
     async def handle_case_create(self, message: CaseRead):
+        logging.info(f'Admin recieve')
         builder = InlineKeyboardBuilder()
         answer_case_url = WebAppInfo(url=f'{settings.DOMAIN_URL}/send_answer/{message.id}/')
         builder.button(text=f'Задание',
                        web_app=answer_case_url)
         builder.adjust(1)
         await bot.send_message(message.executor_id,
-                               text=f'Вам отправили тестовое задание!\n\n Выполните его до {message.exp_at.strftime('%d-%B-%Y %H:%M')}👇',
+                               text=f'Вам отправили тестовое задание!\n\n Выполните его до {message.exp_at.strftime('%d-%B-%Y')}👇',
                                reply_markup=builder.as_markup())
 
     async def handle_answer_case(self, message: CaseAnswer):
+        logging.info(f'Admin recieve ')
         builder = InlineKeyboardBuilder()
         # todo route!
         admin_answer_case_url = WebAppInfo(url=f'https://9w8x7mzf-5173.use.devtunnels.ms/send_test/{message.id}')
         builder.button(text=f'Задание',
                        web_app=admin_answer_case_url)
         builder.adjust(1)
-        await bot.send_message(message.executor_id, text='Ответ на тестовое задание 👇',
+        await bot.send_message(message.user_id, text='Посмотрите ответ на тестовое задание 👇',
                                reply_markup=builder.as_markup())
 
     async def pinger(self, user_id: int):
@@ -68,8 +70,7 @@ class Worker:
     async def __call__(self, *args, **kwargs):
         logging.info('Start Bot Worker')
 
-        locale.setlocale(locale.LC_ALL, 'ru_RU')
-        # maybe create ping
+        # locale.setlocale(locale.LC_ALL, 'russian')
         async with RedisClient.from_pool(connection_pool) as redis:
             async for key, payload in redis.listen_for_stream(
                     ['users.create', 'users.cases.answer', 'users.cases.create',
@@ -78,8 +79,8 @@ class Worker:
                 try:
                     if key == 'users.create':
                         message = UserCreateMessage(**payload)
-                        if message.send_to_admin is False:
-                            continue
+                        # if message.send_to_admin is False:
+                        #     continue
                         logging.info(f'message file {key}, {message}')
                         await self.handle_create(message)
                     elif key == 'users.cases.answer':
@@ -93,8 +94,6 @@ class Worker:
                     elif key == 'users.ping':
                         user_id = int(payload['id'])
                         await self.pinger(user_id)
-                    elif key == 'users.proftest':
-                        pass
 
                 except Exception as e:
                     logging.error(exc_info=e, msg='Error in worker')

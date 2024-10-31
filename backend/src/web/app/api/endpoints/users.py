@@ -1,3 +1,4 @@
+import logging
 from http.client import HTTPException
 
 from fastapi_sqlalchemy_toolkit import ModelManager
@@ -19,6 +20,7 @@ from ...fastapi_crud_toolkit.crud_router import CrudRouter
 from fastapi_sqlalchemy_toolkit import ModelManager
 from ...fastapi_crud_toolkit.authenticator import BaseAuthenticator
 from pydantic import BaseModel
+from sqlalchemy import select, func
 from fastapi_users.router.common import ErrorModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from ...fastapi_crud_toolkit.openapi_responses import (
@@ -29,7 +31,8 @@ from ...fastapi_crud_toolkit.openapi_responses import (
     case_expired_response
 
 )
-
+import asyncio
+from ...utils.connect_to_api_google_sheet import delete, init_google_sheet, update
 
 
 def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseModel],
@@ -54,7 +57,6 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
     async def objs(request: Request, session: AsyncSession = Depends(get_session), ):
         return await manager.list(session)
 
-
     @crud.patch("/{id}", response_model=read_scheme, responses={
         **auth_responses,
         **not_found_response,
@@ -62,7 +64,19 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
                 dependencies=[Depends(get_current_superuser)])
     async def obj(request: Request, id: int, scheme: update_scheme, session: AsyncSession = Depends(get_session)):
         model = await manager.get_or_404(session, id=id)
-        return await manager.update(session, model, scheme)
+
+        response = await manager.update(session, model, scheme)
+        if model.status != response.status:
+            stmt = select(func.count(User))
+            user_count = await session.scalar(stmt)
+
+            def _():
+                ws = init_google_sheet()
+                update(user_count, response.status, ws)
+
+            await asyncio.to_thread(_)
+
+        return response
 
     @crud.get("/{id}",
               dependencies=[Depends(get_current_active_user)],
@@ -86,6 +100,14 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
     async def obj(request: Request, id: int, session: AsyncSession = Depends(get_session)):
         obj_in_db = await manager.get_or_404(session, id=id, options=joinedload(User.resume))
         await manager.delete(session, obj_in_db)
+        stmt = select(func.count(User))
+        user_count = await session.scalar(stmt)
+
+        def _():
+            ws = init_google_sheet()
+            delete(user_count, ws)
+
+        await asyncio.to_thread(_)
         return
 
     # async def upload():

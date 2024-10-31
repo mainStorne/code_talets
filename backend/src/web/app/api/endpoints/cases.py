@@ -86,7 +86,7 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
 
         response = await manager.create(session, objs)
         await redis.xadd('users.cases.create',
-                         {'id': user.id, 'exp_at': objs.exp_at.timestamp(), **objs.model_dump(exclude={'exp_at'})})
+                         {'id': response.id, 'exp_at': objs.exp_at.timestamp(), **objs.model_dump(exclude={'exp_at'})})
         return response
 
     @crud.patch("/{id}", response_model=read_scheme, responses={
@@ -148,12 +148,14 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
                           session: AsyncSession = Depends(get_session),
                           redis: RedisClient = Depends(get_redis)):
         case = await m.get_or_404(session, id=answered_case.answer_to_id)
+
         if case.exp_at < answered_case.created_at:
             raise HTTPException(status.HTTP_409_CONFLICT)
         response = await case_answer_manager.create(session, answered_case)
 
         await redis.xadd('users.cases.answer', {
-            'user_id': user.id,
+            'id': response.id,
+            'user_id': case.creator_id,
             'created_at': answered_case.created_at.timestamp(),
             **answered_case.model_dump(exclude={'created_at'})})
         return response

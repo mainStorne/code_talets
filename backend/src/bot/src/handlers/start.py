@@ -28,16 +28,17 @@ async def cmd_start_already_have_user(message: Message, user: User):
     )
 
 
-@start_router.callback_query(F.data.start_with('spec_'))
+@start_router.callback_query(lambda x: x.data.startswith('spec_'))
 async def proftest(callback_query: CallbackQuery):
     await callback_query.answer()
     spec_id = int(callback_query.data.replace('spec_', ''))
     async with async_session_maker() as session:
         spec = await session.get(Speciality, spec_id)
-    text = spec.text + '\nДополнительные материалы:\n' + "\n".join([hbold(url) for url in spec.urls.split(';')])
+    text = spec.text + '\nДополнительные материалы:\n' + "\n".join([url for url in spec.urls.split(';')])
     logging.info('send proftest')
     await callback_query.bot.send_message(callback_query.from_user.id,
-                                          text=text)
+                                          text=text,
+                                          )
 
 
 @start_router.message(CommandStart())
