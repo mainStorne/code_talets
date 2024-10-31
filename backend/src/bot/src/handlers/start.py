@@ -4,8 +4,11 @@ from aiogram.types import Message
 from ..buttons.inline import main_menu
 from ..filters.user_filter import HaveUserFilter, AdminFilter
 from ..settings import settings
+from ..conf import connection_pool
+from ..storage.db.adapters.redis_client import RedisClient
 from ..storage.db.models.users import User
 from aiogram.types import URLInputFile
+
 start_router = Router()
 
 
@@ -18,21 +21,19 @@ start_router = Router()
 #
 
 
-
-
 @start_router.message(CommandStart())
 async def cmd_start(message: Message):
-
+    async with RedisClient(connection_pool=connection_pool) as redis:
+        await redis.xadd('users.ping', {'id': message.from_user.id})
     await message.answer(
         text='Здравствуйте! Для вашей регистрации пожалуйства нажмите 👇',
         reply_markup=main_menu(settings.DOMAIN_URL)
     )
 
+
 @start_router.message(Command('view_table'))
 async def view_table(message: Message):
-    await message.answer(text='https://docs.google.com/spreadsheets/d/1hH-zaxjEvBLexxqnOSbp8FyF7RfVeLnKhBq9izkNraY/edit?gid=0#gid=0')
+    await message.answer(
+        text='https://docs.google.com/spreadsheets/d/1hH-zaxjEvBLexxqnOSbp8FyF7RfVeLnKhBq9izkNraY/edit?gid=0#gid=0')
     # doc = URLInputFile('https://musical-pheasant-major.ngrok-free.app/staticfiles/cecc0c75-18ee-4fc6-b8ab-e56fc49bd5b5prakt_rabot_mdk_04.02_090207.pdf')
     # await message.bot.send_document(message.from_user.id, doc)
-
-
-

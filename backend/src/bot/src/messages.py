@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
+class Message(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 class MessageBase(BaseModel):
     user_id: int
@@ -29,7 +31,32 @@ class UserCreateMessage(BaseModel):
         # return [fio, phoneNumber, age, city, created_at, telegram]
         return [self.fio, self.phone_number, self.age, self.city, self.created_at.strftime('%H:%M:%S'), self.telegram]
 
-#
-# class UserCreateMessage(MessageBase):
-#     text: str
-#     url: str
+from datetime import datetime
+from pydantic import BaseModel, HttpUrl, model_validator, Field
+from pydantic.main import IncEx
+
+
+class BaseCase(Message):
+    case_url: HttpUrl | None
+    text: str | None
+
+
+
+
+
+class CaseCreate(BaseCase):
+    executor_id: int
+    exp_at: datetime
+
+
+
+class CaseRead(CaseCreate):
+    id: int
+
+
+
+class CaseAnswer(BaseCase):
+    case_url: HttpUrl | None
+    text: str | None
+    answer_to_id: int
+    created_at: datetime

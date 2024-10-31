@@ -63,12 +63,14 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
             "model": ErrorModel,
         }
     }, status_code=status.HTTP_201_CREATED, name=f"{name}:new one",
-               dependencies=[Depends(get_current_active_user)],
-               )
-    async def obj(request: Request, objs: create_scheme, session: AsyncSession = Depends(get_session)):
-        response = await manager.create(session, objs)
 
-        await bot.send_message(response.executor_id)
+               )
+    async def obj(objs: create_scheme, session: AsyncSession = Depends(get_session)
+                  , user: User = Depends(get_current_active_user), redis: RedisClient = Depends(get_redis)):
+        objs.creator_id = user.id
+        response = await manager.create(session, objs)
+        await redis.xadd('users.cases.create', {'id': response.id, **objs.model_dump(exclude={'exp_at'})})
+
 
     @crud.patch("/{id}", response_model=read_scheme, responses={
         **auth_responses,
@@ -135,7 +137,7 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
         answered_case.case_url = path
         response = await case_answer_manager.create(session, answered_case)
 
-        await redis.xadd('user.cases.answer', {
+        await redis.xadd('users.cases.answer', {
             'user_id': response.id,
             'created_at': answered_case.created_at.timestamp(),
             **answered_case.model_dump(exclude={'created_at'})})

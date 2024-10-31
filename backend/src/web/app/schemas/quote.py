@@ -24,3 +24,5 @@ class Speciality(BaseModel):
 class QuestionOutput(BaseModel):
     questions: list[QuestionRead]
     total_questions: int
+
+# class SpecInput(BaseModel/

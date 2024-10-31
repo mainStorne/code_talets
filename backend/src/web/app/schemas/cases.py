@@ -13,10 +13,9 @@ class BaseCase(BaseModel):
     text: str | None
 
 
+
 class CaseCreate(BaseCase):
-    creator_id: int
     executor_id: int
-    start_time: datetime = datetime.now(tz=timezone.utc)
     exp_at: datetime
 
 
