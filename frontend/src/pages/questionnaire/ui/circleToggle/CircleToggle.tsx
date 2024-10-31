@@ -7,12 +7,12 @@ const CircleToggle: React.FC<{ text: string; isFilled: boolean; onSelect: (text:
   };
 
   return (
-    <div className={styles.divForCircleToggle}>
+    <div className={`${styles.divForCircleToggle}`}>
       <div
         onClick={handleToggle}
         className={`${styles.circleToggle} ${isFilled ? styles.full : ''}`}
       />
-      <p className={styles.answerText}>{text}</p>
+      <p className={`${styles.answerText} ${isFilled ? styles.textFull : ''}`}>{text}</p>
     </div>
   );
 };
