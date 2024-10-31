@@ -99,7 +99,7 @@ export const SendRequest = () => {
   };
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsCheckboxChecked(event.target.checked); // Update checkbox state
+    setIsCheckboxChecked(event.target.checked);
   };
 
   return (
@@ -153,7 +153,7 @@ export const SendRequest = () => {
         </label>
         <InputMask
           className={styles.input}
-          mask="+7 (999) 999-99-99" // Маска для номера телефона
+          mask="+7 (999) 999-99-99"
           value={phoneNumber}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setPhoneNumber(e.target.value)
