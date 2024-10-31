@@ -6,13 +6,6 @@ import { getUserData } from "../../../shared/api/getResumes";
 import { postCase } from "../../../shared/api/sendTestEx/";
 import styles from "./sendAnswer.module.scss";
 
-interface CaseData {
-  case_url: string;
-  creator_id: number;
-  executor_id: number;
-  start_time: string;
-}
-
 export const SendAnswer = () => {
   const { id } = useParams<{ id: string }>();
   const initData = window.Telegram.WebApp.initData;
@@ -96,25 +89,21 @@ export const SendAnswer = () => {
       </h3>
       <hr className={styles.hre} />
       <h2 className={styles.age}>
-        Возраст: <span>{data?.age}</span>
+        Возраст: <span>{/* Возраст пользователя */}</span>
       </h2>
       <h2>
-        Город: <span>{data?.city}</span>
+        Город: <span>{/* Город пользователя */}</span>
       </h2>
       <h2>
-        Номер телефона: <span>{data?.phone_number}</span>
+        Номер телефона: <span>{/* Номер телефона пользователя */}</span>
       </h2>
       <h2>
-        Опыт работы: <span>{data?.work_experience}</span>
+        Опыт работы: <span>{/* Опыт работы пользователя */}</span>
       </h2>
       <h2>
-        Резюме:{" "}
+        Резюме:
         <span>
-          <a
-            href={data?.resume.resume_url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="" target="_blank" rel="noopener noreferrer">
             Скачать резюме
           </a>
         </span>
@@ -131,30 +120,19 @@ export const SendAnswer = () => {
         </span>
       </p>
 
-      <form onSubmit={handleSubmit}>
+      <form>
         <div className={styles.input_container}>
           <label htmlFor="fileLink">
             Ваше тестовое задание (ссылка) <span>*</span>
           </label>
-          <input
-            className={styles.input}
-            type="text"
-            id="fileLink"
-            onChange={(e) => setFileLink(e.target.value)}
-          />
+          <input className={styles.input} type="text" id="fileLink" />
         </div>
         <button type="submit" className={styles.submit_button}>
           Отправить
         </button>
       </form>
-      {mutation.isError && (
-        <p className={styles.error}>
-          Произошла ошибка при отправке: {mutation.error.message}
-        </p>
-      )}
-      {mutation.isSuccess && (
-        <p className={styles.success}>Задание успешно отправлено!</p>
-      )}
+      <p className={styles.error}>{/* Сообщение об ошибке */}</p>
+      <p className={styles.success}>{/* Сообщение об успешной отправке */}</p>
     </>
   );
 };
