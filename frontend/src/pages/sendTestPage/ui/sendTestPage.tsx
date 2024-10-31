@@ -145,6 +145,14 @@ export const SendTestPage = () => {
             required
           />
         </div>
+        {mutation.isError && (
+          <p className={styles.error}>
+            Произошла ошибка при отправке: {mutation.error.message}
+          </p>
+        )}
+        {mutation.isSuccess && (
+          <p className={styles.success}>Задание успешно отправлено!</p>
+        )}
         <button
           type="submit"
           className={`${styles.submit_button} ${
@@ -155,14 +163,6 @@ export const SendTestPage = () => {
           Отправить
         </button>
       </form>
-      {mutation.isError && (
-        <p className={styles.error}>
-          Произошла ошибка при отправке: {mutation.error.message}
-        </p>
-      )}
-      {mutation.isSuccess && (
-        <p className={styles.success}>Задание успешно отправлено!</p>
-      )}
     </>
   );
 };
