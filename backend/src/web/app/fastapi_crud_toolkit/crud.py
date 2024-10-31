@@ -53,7 +53,7 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
     }, name=f'{name}:patch one',
                 dependencies=[Depends(get_current_superuser)])
     async def obj(request: Request, id: int, scheme: update_scheme, session: AsyncSession = Depends(get_session)):
-        model = await manager.get_or_404(session, id=id)
+        model = await manager.get_or_404(session)
         return await manager.update(session, model, scheme)
 
     @crud.get("/{id}",
@@ -69,7 +69,7 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
         return await manager.get_or_404(session, id=id)
 
     @crud.delete("/{id}",
-                 dependencies=[Depends(get_current_superuser)],
+                 # dependencies=[Depends(get_current_superuser)],
                  response_class=Response,
                  responses={
                      **auth_responses,

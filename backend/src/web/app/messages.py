@@ -30,4 +30,4 @@ class CreateUserMessage(BaseModel):
 
     def to_list(self):
         # return [fio, phoneNumber, age, city, created_at, telegram]
-        return [self.fio, self.phone_number, self.age, self.city, self.created_at, self.telegram]
+        return [self.fio, self.phone_number, self.age, self.city, self.created_at.strftime('%H:%M:%S'), self.telegram]

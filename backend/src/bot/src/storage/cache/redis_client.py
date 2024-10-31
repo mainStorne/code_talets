@@ -9,8 +9,8 @@ class RedisClient(Redis):
     async def broadcast_user_cud_stream(self, user: User, action: Literal['create', 'update', 'delete']):
         await self.xadd(f'{self.service}.{action}', {'user_id': user.id})
 
-    async def listen_for_stream(self) -> AsyncGenerator[str, dict]:
-        ids = {'users.create': '$'}
+    async def listen_for_stream(self, names: list[str]) -> AsyncGenerator[str, dict]:
+        ids = {name: '$' for name in names}
         while True:
             response = await self.xread(ids, count=1, block=0)
             key, messages = response[0]

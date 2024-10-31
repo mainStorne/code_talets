@@ -3,7 +3,7 @@ from fastapi_sqlalchemy_toolkit import make_partial_model
 
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Literal
-
+from .resumes import ResumeRead
 
 class BaseUser(BaseModel):
     first_name: str
@@ -23,6 +23,10 @@ class CreateUser(BaseUser):
 
 class ReadUser(BaseUser):
     id: int
+
+
+class ReadUserResume(ReadUser):
+    resume: ResumeRead
 
 
 UpdateUser = make_partial_model(CreateUser)

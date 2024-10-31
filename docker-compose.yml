@@ -13,6 +13,8 @@ services:
       context: frontend
       dockerfile: Dockerfile
     container_name: frontend
+    volumes:
+      - ./frontend/src:/app/src
 
   postgres:
     image: postgres

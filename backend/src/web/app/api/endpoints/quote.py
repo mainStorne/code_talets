@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Response, status, Body
 from fastapi_pagination import Page
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,9 +25,9 @@ async def questions(session: AsyncSession = Depends(get_session)) -> Page[Questi
 
 
 @r.post('/', response_model=list[Speciality])
-async def finish(spec_ids: list[int],
+async def finish(spec_ids: Annotated[list[int], Body(embeded=True)],
                  user: User = Depends(auth.current_user()),
                  session: AsyncSession = Depends(get_session)):
     response = await m.calc_results(session, spec_ids)
-    await bot.send_message(user.id, '🎉Вы Успешно прошли тест!🎉\n\n Специальности: ')
+    await bot.send_message(user.id, f'🎉Вы Успешно прошли тест!🎉\n\n Специальности: {" ".join([res.name for res in response])}')
     return response
