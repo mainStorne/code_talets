@@ -3,6 +3,8 @@ import { useMutation } from "@tanstack/react-query";
 import styles from "./sendRequests.module.scss";
 import { postResumes } from "../../../shared/api/resumes";
 import { UserData } from "../../../shared/api/resumes/resumes";
+import { useNavigate } from "react-router-dom";
+import InputMask from "react-input-mask";
 
 interface PostResumesResponse {
   user: {
@@ -12,6 +14,7 @@ interface PostResumesResponse {
     age: number;
     city: string;
     work_experience: string;
+    phone_number: string;
   };
 }
 
@@ -20,11 +23,14 @@ export const SendRequest = () => {
   const [age, setAge] = useState<number | undefined>(undefined);
   const [city, setCity] = useState("");
   const [workExperience, setWorkExperience] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isFormValid, setIsFormValid] = useState(false);
+  const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
+  const navigate = useNavigate();
 
   const mutation = useMutation<PostResumesResponse, Error, UserData>({
     mutationFn: async (userData: UserData) => {
@@ -35,6 +41,7 @@ export const SendRequest = () => {
       console.log("Данные успешно отправлены:", response);
       setSuccessMessage("Данные успешно отправлены!");
       setErrorMessage("");
+      navigate("/thank_you");
     },
     onError: (error) => {
       console.error("Ошибка при отправке данных:", error);
@@ -50,12 +57,22 @@ export const SendRequest = () => {
       age > 0 &&
       city.trim().length > 0 &&
       workExperience.trim().length > 0 &&
-      file !== null;
+      phoneNumber.trim().length > 0 &&
+      file !== null &&
+      isCheckboxChecked; // Include checkbox state in validity check
 
     setIsFormValid(isValid);
-  }, [fullName, age, city, workExperience, file]);
+  }, [
+    fullName,
+    age,
+    city,
+    workExperience,
+    phoneNumber,
+    file,
+    isCheckboxChecked,
+  ]);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const [first_name, middle_name, last_name] = fullName.split(" ");
@@ -67,6 +84,7 @@ export const SendRequest = () => {
       age,
       city,
       work_experience: workExperience,
+      phone_number: phoneNumber,
     };
 
     mutation.mutate(userData);
@@ -80,6 +98,10 @@ export const SendRequest = () => {
     }
   };
 
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsCheckboxChecked(event.target.checked); // Update checkbox state
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       <h1 className={styles.title}>Заполните форму</h1>
@@ -91,7 +113,9 @@ export const SendRequest = () => {
           className={styles.input}
           type="text"
           value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setFullName(e.target.value)
+          }
           required
         />
       </div>
@@ -103,7 +127,9 @@ export const SendRequest = () => {
           className={styles.input}
           type="number"
           value={age}
-          onChange={(e) => setAge(Number(e.target.value))}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setAge(Number(e.target.value))
+          }
           required
         />
       </div>
@@ -115,7 +141,23 @@ export const SendRequest = () => {
           className={styles.input}
           type="text"
           value={city}
-          onChange={(e) => setCity(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setCity(e.target.value)
+          }
+          required
+        />
+      </div>
+      <div className={styles.input_container}>
+        <label htmlFor="phone">
+          Номер телефона <span>*</span>
+        </label>
+        <InputMask
+          className={styles.input}
+          mask="+7 (999) 999-99-99" // Маска для номера телефона
+          value={phoneNumber}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setPhoneNumber(e.target.value)
+          }
           required
         />
       </div>
@@ -127,7 +169,9 @@ export const SendRequest = () => {
           className={styles.big_input}
           type="text"
           value={workExperience}
-          onChange={(e) => setWorkExperience(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setWorkExperience(e.target.value)
+          }
           required
         />
       </div>
@@ -156,7 +200,13 @@ export const SendRequest = () => {
           !isFormValid ? styles.inactive_checkbox : ""
         }`}
       >
-        <input type="checkbox" name="checkbox" required />
+        <input
+          type="checkbox"
+          name="checkbox"
+          required
+          checked={isCheckboxChecked}
+          onChange={handleCheckboxChange}
+        />
         <span></span>
         <h3 className={styles.checkbox_text}>
           Я прочитал(а) политику обработки персональных данных и даю согласие на
