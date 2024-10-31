@@ -17,6 +17,7 @@ services:
       - redis
       - postgres
     container_name: bot
-    expose:
-      - 81
+    ports:
+      - "81:80"
+
 

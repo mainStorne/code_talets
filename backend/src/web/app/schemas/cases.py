@@ -12,18 +12,16 @@ class BaseCase(BaseModel):
     case_url: HttpUrl | None
     text: str | None
 
-    @model_validator(mode='after')
-    def url_or_text_not_empty(self):
-        if self.case_url is None and self.text is None:
-            raise ValueError('Текст или url должны быть заполненны!')
-        return self
-
 
 class CaseCreate(BaseCase):
     creator_id: int
     executor_id: int
     start_time: datetime = datetime.now(tz=timezone.utc)
     exp_at: datetime
+
+
+class CaseFile(BaseModel):
+    case_url: str
 
 
 class CaseRead(CaseCreate):

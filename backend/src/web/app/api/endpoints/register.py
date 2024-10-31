@@ -20,15 +20,12 @@ from ...conf import bot
 from ...fastapi_crud_toolkit.crud import get_crud_router
 from ...authenticator import Authenticator
 from ...fastapi_crud_toolkit.openapi_responses import already_exist, no_content
+from .users import r as r2
 
 r = APIRouter()
 m = UserManager(User)
 auth = Authenticator()
 
-r2 = get_crud_router(m,
-                     get_session,
-                     ReadUser, BaseUser, UpdateUser,
-                     auth)
 r.include_router(r2)
 
 
@@ -45,22 +42,22 @@ async def register(user: Annotated[BaseUser, Body(embed=True)],
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
     response = await m.create(session, user)
     link = f'https://t.me/{telegram.user.username}'
-    if send_to_admin:
-        admin = await m.get(session, is_superuser=True)
-        junior_text = 'У этого кандитата не достаточно опыта, предлогаю на должность junior'
-        default_text = 'Ознакомьтесь с этим кондидатом:'
-        try:
-            if user.work_experience.strip() == 'нет' or float(user.work_experience) <= 0.5:
-                text = junior_text
-            else:
-                text = default_text
-        except ValueError:
+    junior_text = 'У этого кандитата не достаточно опыта, предлогаю на должность junior'
+    default_text = 'Ознакомьтесь с этим кондидатом:'
+    try:
+        if user.work_experience.strip() == 'нет' or float(user.work_experience) <= 0.5:
+            text = junior_text
+        else:
             text = default_text
+    except ValueError:
+        text = default_text
+
 
     user_status = 'нет статуса' if user.status is None else user.status
     await redis.xadd('users.create', {**user.model_dump(exclude={'is_superuser', 'created_at', 'status'}),
                                       'created_at': user.created_at.timestamp(), 'telegram': link,
-                                      'status': user_status, # type: ignore
+                                      'text': text,
+                                      'status': user_status,  # type: ignore
                                       })
     return response
 
@@ -70,5 +67,5 @@ async def upload(file: UploadFile = File(),
                  session=Depends(get_session),
                  user: User = Depends(get_current_user()),
                  ):
-    resume: UserResume = await m.create_resume(session, user.id, file)
+    resume: UserResume = await m.get_and_save_file(session, {'user_id': user.id}, UserResume, 'resume_url', file)
     return resume

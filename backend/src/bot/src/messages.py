@@ -2,9 +2,9 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
+
 class MessageBase(BaseModel):
     user_id: int
-
 
 
 class UserCreateMessage(BaseModel):
@@ -14,18 +14,20 @@ class UserCreateMessage(BaseModel):
     last_name: str
     middle_name: str
     age: int
+    text: str
     city: str
     created_at: datetime
     telegram: str
     status: str
     model_config = ConfigDict(arbitrary_types_allowed=True)
+
     @property
     def fio(self):
         return " ".join([self.last_name, self.middle_name, self.first_name])
 
     def to_list(self):
         # return [fio, phoneNumber, age, city, created_at, telegram]
-        return [self.fio, self.phone_number, self.age, self.city, self.created_at, self.telegram]
+        return [self.fio, self.phone_number, self.age, self.city, self.created_at.strftime('%H:%M:%S'), self.telegram]
 
 #
 # class UserCreateMessage(MessageBase):

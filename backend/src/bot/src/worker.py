@@ -21,13 +21,14 @@ class Worker:
             admin = await session.scalar(admin)
 
         builder = InlineKeyboardBuilder()
-        builder.button(text='Отправьте тестовое задание для кандидата', web_app=WebAppInfo(url=f'{settings.DOMAIN_URL}/signup'))
+        builder.button(text=f'Отправьте тестовое задание для кандидата!\n\n{message.text}',
+                       web_app=WebAppInfo(url=f'https://9w8x7mzf-5173.use.devtunnels.ms/send_test/{message.id}/'))
         builder.adjust(1)
 
-        await bot.send_message(admin.id, text=message.text, reply_markup=builder.as_markup())
-        # async with async_session_maker() as session:
+        await bot.send_message(admin.id, text='Вам сообщение!', reply_markup=builder.as_markup())
 
     async def __call__(self, *args, **kwargs):
+        logging.info('Start Bot Worker')
         # maybe create ping
         async with RedisClient.from_pool(connection_pool) as redis:
             async for key, payload in redis.listen_for_stream():
@@ -35,6 +36,7 @@ class Worker:
                 if key == 'users.create':
                     try:
                         message = UserCreateMessage(**payload)
+                        logging.info(f'message file {key}, {message}')
                         await self.handle_cases(message)
-                    except ValidationError as e:
+                    except Exception as e:
                         logging.error(exc_info=e, msg='Error in worker')

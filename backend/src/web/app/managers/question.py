@@ -1,4 +1,4 @@
-from fastapi_sqlalchemy_toolkit import ModelManager
+from .base import BaseManager as ModelManager
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..db.models.questions import Question, Speciality
