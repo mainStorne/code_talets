@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+
+
 class BaseQuestion(BaseModel):
     name: str
     speciality_id: int
@@ -17,3 +19,8 @@ class Speciality(BaseModel):
     name: str
     text: str
     urls: str
+
+
+class QuestionOutput(BaseModel):
+    questions: list[QuestionRead]
+    total_questions: int

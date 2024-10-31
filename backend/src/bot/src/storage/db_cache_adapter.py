@@ -57,7 +57,7 @@ class DbCacheAdapter(Generic[Read]):
         try:
             async with asynccontextmanager(self.get_cache)() as cache:
                 cache: RedisClient
-                async for key, payload in cache.listen_for_cud_stream('accounts'):
+                async for key, payload in cache.listen_for_stream('accounts'):
                     key: str
                     _, cud = key.split('.')
                     await self._handle_cud(cud, payload)

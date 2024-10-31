@@ -8,8 +8,8 @@ from datetime import datetime
 
 class Case(IDMixin, Base):
     __tablename__ = 'cases'
-    creator: Mapped[int] = mapped_column(ForeignKey('users.id'))
-    executor: Mapped[int] = mapped_column(
+    creator_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    executor_id: Mapped[int] = mapped_column(
         ForeignKey('users.id')
     )
     start_time: Mapped[datetime] = mapped_column(
@@ -34,5 +34,7 @@ class CaseAnswer(IDMixin, Base):
     text: Mapped[str] = mapped_column(
         String(), nullable=True
     )
-
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True)
+    )
 

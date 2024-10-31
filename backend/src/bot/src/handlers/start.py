@@ -22,6 +22,7 @@ start_router = Router()
 
 @start_router.message(CommandStart())
 async def cmd_start(message: Message):
+
     await message.answer(
         text='Здравствуйте! Для вашей регистрации пожалуйства нажмите 👇',
         reply_markup=main_menu(settings.DOMAIN_URL)
