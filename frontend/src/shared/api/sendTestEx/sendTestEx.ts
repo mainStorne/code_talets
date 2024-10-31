@@ -37,7 +37,7 @@ export const postCase = async (
     // Make the POST request
     const response = await axios.post(`${BASE_URL}/cases/`, formData, {
       headers: {
-        "Content-Type": "multipart/form-data", // This can also be omitted as axios will set it automatically
+        "Content-Type": "multipart/form-data",
         "init-data": initData,
         "ngrok-skip-browser-warning": "69420",
       },
