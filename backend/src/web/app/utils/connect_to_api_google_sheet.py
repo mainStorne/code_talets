@@ -3,7 +3,7 @@
 # pip install gspread
 import gspread
 from gspread import spreadsheet, Worksheet
-# from ..db.adapters.redis_client import
+from ..db.adapters.redis_client import listen
 
 
 def init_google_sheet():
