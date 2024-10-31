@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   useQuery,
   useMutation,
@@ -27,7 +27,10 @@ export const SendTestPage = () => {
   const [executionTime, setExecutionTime] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [fileLink, setFileLink] = useState<string>("");
+  const [fileName, setFileName] = useState<string>("");
+  const [isFormValid, setIsFormValid] = useState(false);
 
+  // Fetch user data
   const {
     data,
     error,
@@ -38,7 +41,6 @@ export const SendTestPage = () => {
     enabled: !!id,
   });
 
-  // Mutation for posting case data
   const mutation: UseMutationResult<unknown, Error, CaseData> = useMutation({
     mutationFn: (caseData: CaseData) => postCase(initData, caseData),
     onSuccess: (response) => {
@@ -49,6 +51,15 @@ export const SendTestPage = () => {
     },
   });
 
+  useEffect(() => {
+    setIsFormValid(
+      executionTime.trim().length > 0 &&
+        description.trim().length > 0 &&
+        fileLink.trim().length > 0 &&
+        fileName.trim().length > 0
+    );
+  }, [executionTime, description, fileLink, fileName]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -58,10 +69,17 @@ export const SendTestPage = () => {
       creator_id: data?.id || 0,
       executor_id: Number(id),
       start_time: new Date().toISOString(),
-      exp_at: executionTime,
+      exp_at: new Date(executionTime).toISOString(),
     };
 
     mutation.mutate(caseData);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFileName(file.name);
+    }
   };
 
   if (isLoadingUser) return <p>Loading...</p>;
@@ -86,7 +104,7 @@ export const SendTestPage = () => {
         Опыт работы: <span>{data?.work_experience}</span>
       </h2>
       <h2>
-        Резюме:{" "}
+        Резюме:
         <span>
           <a
             href={data?.resume.resume_url}
@@ -107,10 +125,11 @@ export const SendTestPage = () => {
           </label>
           <input
             className={styles.input}
-            type="text"
+            type="date"
             id="executionTime"
             value={executionTime}
             onChange={(e) => setExecutionTime(e.target.value)}
+            required
           />
         </div>
         <div className={styles.input_container}>
@@ -123,6 +142,7 @@ export const SendTestPage = () => {
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            required
           />
         </div>
         <div className={styles.input_container}>
@@ -130,13 +150,13 @@ export const SendTestPage = () => {
             Тестовое задание (файл) <span>*</span>
           </label>
           <label htmlFor="file" className={styles.upload_button}>
-            Добавить файл
+            {fileName || "Добавить файл"}
           </label>
           <input
             id="file"
             className={styles.hidden_input}
             type="file"
-            onChange={(e) => e.target.files}
+            onChange={handleFileChange}
           />
         </div>
         <div className={styles.input_container}>
@@ -147,10 +167,18 @@ export const SendTestPage = () => {
             className={styles.input}
             type="text"
             id="fileLink"
+            value={fileLink}
             onChange={(e) => setFileLink(e.target.value)}
+            required
           />
         </div>
-        <button type="submit" className={styles.submit_button}>
+        <button
+          type="submit"
+          className={`${styles.submit_button} ${
+            !isFormValid ? styles.disabled_button : ""
+          }`}
+          disabled={!isFormValid}
+        >
           Отправить
         </button>
       </form>

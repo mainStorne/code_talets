@@ -12,10 +12,11 @@ interface CaseData {
 
 export const postCase = async (initData: string, caseData: CaseData) => {
   try {
-    const response = await axios.post(`${BASE_URL}/cases`, caseData, {
+    const response = await axios.post(`${BASE_URL}/cases/`, caseData, {
       headers: {
         "Content-Type": "application/json",
         "init-data": initData,
+        "ngrok-skip-browser-warning": "69420",
       },
     });
     return response.data;
