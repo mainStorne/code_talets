@@ -31,7 +31,7 @@ export const SendAnswer = () => {
   });
 
   const mutation: UseMutationResult<unknown, Error, CaseData> = useMutation({
-    // mutationFn: (caseData: CaseData) => postCase(initData, caseData),
+    mutationFn: (caseData: CaseData) => postCase(initData, caseData),
     onSuccess: (response) => {
       console.log("Case posted successfully:", response);
     },
