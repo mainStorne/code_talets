@@ -1,10 +1,13 @@
 .backgroundContainer {
 	top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
 	position: absolute;
 	pointer-events: none;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
 	background-image: url(../../../../assets/net.svg);
 }
