@@ -166,7 +166,7 @@ export const SendTestPage = () => {
             required
           />
         </div>
-        <div className={styles.input_container}>
+        {/* <div className={styles.input_container}>
           <label htmlFor="fileLink">
             Тестовое задание (ссылка) <span>*</span>
           </label>
@@ -178,7 +178,7 @@ export const SendTestPage = () => {
             onChange={(e) => setFileLink(e.target.value)}
             required
           />
-        </div>
+        </div> */}
         {mutation.isError && (
           <p className={styles.error}>
             Произошла ошибка при отправке: {mutation.error.message}
