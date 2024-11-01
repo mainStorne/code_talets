@@ -18,6 +18,7 @@ import locale
 
 class Worker:
     async def handle_create(self, message: UserCreateMessage):
+        logging.info(f'Admin recieve')
         async with async_session_maker() as session:
             admin = select(User).where(User.is_superuser == True)
             admins = await session.scalars(admin)
@@ -30,7 +31,7 @@ class Worker:
                        web_app=WebAppInfo(url=f'{settings.DOMAIN_URL}/send_test/{message.id}/'))
         builder.adjust(1)
         for admin in admins:
-            await bot.send_message(admin.id, text='Вам сообщение!', reply_markup=builder.as_markup())
+            await bot.send_message(admin.id, text=f'Вам сообщение! {message.text}', reply_markup=builder.as_markup())
 
     async def handle_case_create(self, message: CaseRead):
         logging.info(f'Admin recieve')
@@ -54,8 +55,9 @@ class Worker:
                                reply_markup=builder.as_markup())
 
     async def pinger(self, user_id: int):
+
         while True:
-            await asyncio.sleep(20)
+            await asyncio.sleep(5)
             async with async_session_maker() as session:
                 user = select(User).where(User.id == user_id)
                 user = await session.scalar(user)
@@ -67,6 +69,7 @@ class Worker:
             await asyncio.sleep(86400)
 
     async def __call__(self, *args, **kwargs):
+
         logging.info('Start Bot Worker')
 
         # locale.setlocale(locale.LC_ALL, 'russian')
@@ -77,6 +80,7 @@ class Worker:
                 logging.info(f'recieved {key, payload}')
                 try:
                     if key == 'users.create':
+                        logging.info('in users create')
                         message = UserCreateMessage(**payload)
                         # if message.send_to_admin is False:
                         #     continue
@@ -91,8 +95,10 @@ class Worker:
                         logging.info(f'message file {key, message}')
                         await self.handle_case_create(message)
                     elif key == 'users.ping':
+
                         user_id = int(payload['id'])
-                        await self.pinger(user_id)
+                        asyncio.create_task(self.pinger(user_id))
+
 
                 except Exception as e:
                     logging.error(exc_info=e, msg='Error in worker')
