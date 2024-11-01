@@ -23,13 +23,11 @@ class Case(IDMixin, Base):
     )
 
 
+
 class CaseAnswer(IDMixin, Base):
     __tablename__ = 'case_answers'
     answer_to_id: Mapped[int] = mapped_column(ForeignKey('cases.id', ondelete='CASCADE'))
     case_url: Mapped[str] = mapped_column(
-        String(), nullable=True
-    )
-    text: Mapped[str] = mapped_column(
         String(), nullable=True
     )
     created_at: Mapped[datetime] = mapped_column(

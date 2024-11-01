@@ -1,10 +1,11 @@
 from datetime import datetime
 from datetime import timezone
 from typing import Literal, Any
+from .users import ReadUserResume, ReadUser, ReadResume
 
 from fastapi_sqlalchemy_toolkit import make_partial_model
 
-from pydantic import BaseModel, HttpUrl, model_validator, Field
+from pydantic import BaseModel, HttpUrl, model_validator, Field, ConfigDict
 from pydantic.main import IncEx
 
 
@@ -40,3 +41,11 @@ class CaseAnswerRead(CaseAnswer):
 
 
 CaseAnswerUpdate = make_partial_model(CaseAnswer)
+
+
+class UserCaseAndAnswer(BaseModel):
+    user: ReadUser = Field(validation_alias='User')
+    user_resume: ReadResume = Field(validation_alias='UserResume')
+    case: CaseRead  = Field(validation_alias='Case')
+    case_answer: CaseAnswerRead = Field(validation_alias='CaseAnswer')
+    model_config = ConfigDict(from_attributes=True)

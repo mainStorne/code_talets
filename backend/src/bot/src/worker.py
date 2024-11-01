@@ -40,14 +40,13 @@ class Worker:
                        web_app=answer_case_url)
         builder.adjust(1)
         await bot.send_message(message.executor_id,
-                               text=f'Вам отправили тестовое задание!\n\n Выполните его до {message.exp_at.strftime('%d-%B-%Y')}👇',
+                               text=f'Вам отправили тестовое задание!\n\n Выполните его до {message.exp_at.strftime('%d-%m-%Y')}👇',
                                reply_markup=builder.as_markup())
 
     async def handle_answer_case(self, message: CaseAnswer):
         logging.info(f'Admin recieve ')
         builder = InlineKeyboardBuilder()
-        # todo route!
-        admin_answer_case_url = WebAppInfo(url=f'https://9w8x7mzf-5173.use.devtunnels.ms/send_test/{message.id}')
+        admin_answer_case_url = WebAppInfo(url=f'{settings.DOMAIN_URL}/get_full/{message.id}')
         builder.button(text=f'Задание',
                        web_app=admin_answer_case_url)
         builder.adjust(1)

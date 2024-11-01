@@ -14,7 +14,7 @@ class BaseUser(BaseModel):
     is_superuser: bool = False
     age: int = Field(le=200, ge=13)
     city: str
-    status: Literal['хороший кондидат', 'отличный', 'не подходит'] | None = None
+    status: Literal['хороший кандидат', 'отличный', 'не подходит'] | None = None
     work_experience: str
 
 class CreateUser(BaseUser):
@@ -27,6 +27,11 @@ class ReadUser(BaseUser):
 
 class ReadUserResume(ReadUser):
     resume: ResumeRead | None
+
+class ReadResume(BaseModel):
+    id: int
+    resume_url: str
+    user_id: int
 
 
 UpdateUser = make_partial_model(CreateUser)

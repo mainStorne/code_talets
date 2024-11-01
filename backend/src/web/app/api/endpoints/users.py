@@ -66,15 +66,18 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
         model = await manager.get_or_404(session, id=id)
 
         response = await manager.update(session, model, scheme)
-        if model.status != response.status:
-            stmt = select(func.count(User))
-            user_count = await session.scalar(stmt)
-
-            def _():
-                ws = init_google_sheet()
-                update(user_count, response.status, ws)
-
-            await asyncio.to_thread(_)
+        # if model.status != response.status:
+        #     stmt = select(func.count(User.id)).where(User.is_superuser != True)
+        #     user_count = await session.scalar(stmt)
+        #
+        #     def _():
+        #         ws = init_google_sheet()
+        #         update(user_count, response.status, ws)
+        #
+        #     try:
+        #         await asyncio.to_thread(_)
+        #     except Exception as e:
+        #         logging.error(exc_info=e, msg='')
 
         return response
 
@@ -91,7 +94,7 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
         return await manager.get_or_404(session, id=id, options=joinedload(User.resume))
 
     @crud.delete("/{id}",
-                 # dependencies=[Depends(get_current_superuser)],
+                 dependencies=[Depends(get_current_superuser)],
                  response_class=Response,
                  responses={
                      **auth_responses,
@@ -100,14 +103,20 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
     async def obj(request: Request, id: int, session: AsyncSession = Depends(get_session)):
         obj_in_db = await manager.get_or_404(session, id=id, options=joinedload(User.resume))
         await manager.delete(session, obj_in_db)
-        stmt = select(func.count(User))
+        if obj_in_db.is_superuser:
+            return
+
+        stmt = select(func.count(User.id)).where(User.is_superuser != True)
         user_count = await session.scalar(stmt)
 
         def _():
             ws = init_google_sheet()
             delete(user_count, ws)
 
-        await asyncio.to_thread(_)
+        try:
+            await asyncio.to_thread(_)
+        except Exception as e:
+            logging.error(exc_info=e, msg='')
         return
 
     # async def upload():

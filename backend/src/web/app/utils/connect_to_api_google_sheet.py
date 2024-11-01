@@ -13,6 +13,7 @@ def init_google_sheet():
     logging.info(path)
     gc = gspread.service_account(filename=path / 'API_google_sheet.json')
     wks = gc.open("kode_telegtam_bot").sheet1
+
     return wks
 
 def delete(count_users: int, wks: Worksheet):

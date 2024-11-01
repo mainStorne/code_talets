@@ -29,4 +29,4 @@ class CreateUserMessage(BaseModel):
         return " ".join([self.last_name.title(), self.middle_name.title(), self.first_name.title()])
 
     def to_list(self):
-        return [self.fio, self.phone_number, self.age, self.city.title(), self.created_at.strftime('%d.%B.%Y %H:%M:%S'), self.telegram, self.status]
+        return [self.fio, self.phone_number, self.age, self.city.title(), self.created_at.strftime('%d.%m.%Y %H:%M:%S'), self.telegram, self.status]

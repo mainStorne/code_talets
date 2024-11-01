@@ -5,11 +5,11 @@ from ...db.adapters.base import BaseAdapter
 from fastapi.encoders import jsonable_encoder
 from ...db.adapters.redis_client import RedisClient
 from ...db.models import User
-from ...managers.base import BaseManager as ModelManager
+from ...managers.cases import CaseManager as ModelManager
 from ...db.models.cases import Case, CaseAnswer as CaseAnswerDB
 from ...dependencies.session import get_session
 from ...authenticator import Authenticator
-from ...schemas.cases import CaseCreate, CaseRead, CaseUpdate, CaseAnswer, CaseAnswerRead, CaseAnswerUpdate
+from ...schemas.cases import CaseCreate, CaseRead, CaseUpdate, CaseAnswer, CaseAnswerRead, CaseAnswerUpdate, UserCaseAndAnswer
 
 from ...conf import bot
 
@@ -87,6 +87,18 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
               )
     async def obj(request: Request, id: int, session: AsyncSession = Depends(get_session)):
         return await manager.get_or_404(session, id=id)
+
+    @crud.get("/user_case/{id}",
+              dependencies=[Depends(get_current_active_user)],
+              response_model=UserCaseAndAnswer,
+              responses={
+                  **missing_token_or_inactive_user_response,
+                  **not_found_response
+              },
+              name=f'{name}:one',
+              )
+    async def obj(request: Request, id: int, session: AsyncSession = Depends(get_session)):
+        return await manager.get_user_case(session, id)
 
     # @crud.post("/", response_model=read_scheme, responses={
     #     **missing_token_or_inactive_user_response,
