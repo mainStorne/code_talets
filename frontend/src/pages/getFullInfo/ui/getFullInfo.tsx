@@ -114,7 +114,7 @@ export const GetFullInfo = () => {
       />
       <CircleToggle
         text="отличный кандидат"
-        isFilled={selectedOption === "отличный кандидат"}
+        isFilled={selectedOption === "отличный"}
         onSelect={handleSelect}
       />
       <CircleToggle
