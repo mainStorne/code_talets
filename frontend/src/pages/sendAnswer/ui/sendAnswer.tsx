@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import styles from "./sendAnswer.module.scss";
 import { getUserData } from "../../../shared/api/getResumes/";
@@ -16,6 +16,7 @@ export const SendAnswer = () => {
   const [executorId, setExecutorId] = useState<number | null>(null);
   const [expAt, setExpAt] = useState<Date | null>(null);
   const [remainingTime, setRemainingTime] = useState<string>("");
+  const navigate = useNavigate();
 
   const {
     data: caseData,
@@ -79,6 +80,7 @@ export const SendAnswer = () => {
       setSuccessMsg("Тестовое задание успешно отправлено!");
       setErrorMsg("");
       setIsSubmitting(false);
+      navigate("/thank_you");
     },
     onError: () => {
       setErrorMsg("Ошибка при отправке тестового задания.");
