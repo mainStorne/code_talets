@@ -1,44 +1,56 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import CircleToggle from "../../questionnaire/ui/circleToggle/CircleToggle";
 import styles from "./getfullinfo.module.scss";
-import { getFull } from "../../../shared/api/getFull"; // Замените на актуальный путь к функции getFull
-
-// // Интерфейсы для данных
-// interface UserInfo {
-//   first_name: string;
-//   last_name: string;
-//   age: number;
-//   city: string;
-//   phone_number: string;
-//   work_experience: string;
-// }
-
-// interface UserResume {
-//   resume_url: string;
-// }
-
-// interface CaseAnswer {
-//   case_url: string;
-// }
+import { getFull } from "../../../shared/api/getFull";
+import { patchUser } from "../../../shared/api/patchUser/patchUser";
 
 export const GetFullInfo = () => {
   const [selectedOption, setSelectedOption] = useState("");
-
   const { id } = useParams<{ id: string }>();
-
   const initData = window.Telegram.WebApp.initData;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["userCase", id],
     queryFn: () => getFull(Number(id), initData),
-
+    staleTime: 1000 * 60 * 5,
     enabled: !!id,
+  });
+
+  const mutation = useMutation({
+    mutationFn: async (updatedStatus: string) => {
+      console.log("Отправка запроса patchUser с данными:", {
+        status: updatedStatus,
+      });
+      if (data && data.user) {
+        return await patchUser(
+          data.user.id,
+          { status: updatedStatus },
+          initData
+        );
+      }
+    },
+    onSuccess: () => {
+      alert("Статус обновлен успешно!");
+    },
+    onError: (error) => {
+      console.error("Ошибка обновления статуса:", error);
+      alert("Ошибка обновления статуса.");
+    },
   });
 
   const handleSelect = (text: string) => {
     setSelectedOption(text);
+    console.log("Выбранный вариант:", text); // Добавление логирования для проверки
+  };
+
+  const handleSubmit = async () => {
+    console.log(
+      "Попытка отправки данных с выбранным вариантом:",
+      selectedOption
+    );
+    mutation.mutate(selectedOption);
   };
 
   if (isLoading) return <p>Загрузка данных...</p>;
@@ -94,7 +106,11 @@ export const GetFullInfo = () => {
         isFilled={selectedOption === "Не подходит"}
         onSelect={handleSelect}
       />
-      <button className={styles.submit_button} type="submit">
+      <button
+        className={styles.submit_button}
+        type="button"
+        onClick={handleSubmit}
+      >
         Отправить
       </button>
     </>
