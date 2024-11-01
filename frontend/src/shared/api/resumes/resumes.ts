@@ -11,25 +11,6 @@ export interface UserData {
   phone_number?: string;
 }
 
-export const uploadFile = async (file: File, initData: string) => {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  try {
-    const response = await axios.post(`${BASE_URL}/users/upload`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        "init-data": initData,
-      },
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error("Error uploading file:", error);
-    throw error;
-  }
-};
-
 export const postResumes = async (
   userData: UserData,
   file?: File,
@@ -38,34 +19,41 @@ export const postResumes = async (
   const initData = window.Telegram.WebApp.initData;
 
   try {
-    const requestBody = {
-      user: {
-        first_name: userData.first_name || "string",
-        middle_name: userData.middle_name || "string",
-        last_name: userData.last_name || "string",
-        created_at: new Date().toISOString(),
-        is_superuser: false,
-        age: userData.age || 13,
-        city: userData.city || "string",
-        work_experience: userData.work_experience || "string",
-        phone_number: userData.phone_number,
-      },
-    };
+    const formData = new FormData();
+    formData.append(
+      "user",
+      new Blob(
+        [
+          JSON.stringify({
+            first_name: userData.first_name || "string",
+            middle_name: userData.middle_name || "string",
+            last_name: userData.last_name || "string",
+            created_at: new Date().toISOString(),
+            is_superuser: false,
+            age: userData.age || 18,
+            city: userData.city || "string",
+            work_experience: userData.work_experience || "string",
+            phone_number: userData.phone_number,
+          }),
+        ],
+        { type: "application/json" }
+      )
+    );
+
+    if (file) {
+      formData.append("file", file);
+    }
 
     const response = await axios.post(
       `${BASE_URL}/users/register?send_to_admin=${sendToAdmin}`,
-      requestBody,
+      formData,
       {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
           "init-data": initData,
         },
       }
     );
-
-    if (response.status === 200 && file) {
-      await uploadFile(file, initData);
-    }
 
     return response.data;
   } catch (error) {
