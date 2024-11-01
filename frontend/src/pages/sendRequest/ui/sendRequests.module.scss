@@ -51,6 +51,15 @@
   border: none;
 }
 
+.error,
+.success {
+  justify-self: center;
+}
+
+.error {
+  color: red;
+}
+
 button {
   width: 100%;
   height: 61px;

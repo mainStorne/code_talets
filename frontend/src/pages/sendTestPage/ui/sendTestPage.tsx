@@ -20,15 +20,14 @@ interface CaseData {
 }
 
 export const SendTestPage = () => {
-	const navigate = useNavigate()
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const initData = window.Telegram.WebApp.initData;
-
   const [executionTime, setExecutionTime] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [fileLink, setFileLink] = useState<string>("");
   const [isFormValid, setIsFormValid] = useState(false);
-
+  const [isSubmitting, setIsSubmitting] = useState(false); // Новое состояние для отправки
   const {
     data,
     error,
@@ -42,11 +41,13 @@ export const SendTestPage = () => {
   const mutation: UseMutationResult<unknown, Error, CaseData> = useMutation({
     mutationFn: (caseData: CaseData) => postCase(initData, caseData),
     onSuccess: (response) => {
-			console.log(response);
-      navigate("/thank_you")
+      console.log(response);
+      setIsSubmitting(false); // Установить isSubmitting в false при успешной отправке
+      navigate("/thank_you");
     },
     onError: (error) => {
       console.error("Error submitting case:", error);
+      setIsSubmitting(false); // Установить isSubmitting в false при ошибке
     },
   });
 
@@ -60,7 +61,7 @@ export const SendTestPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    setIsSubmitting(true);
     const caseData: CaseData = {
       case_url: fileLink,
       text: description,
@@ -68,7 +69,6 @@ export const SendTestPage = () => {
       executor_id: Number(id),
       exp_at: new Date(executionTime).toISOString(),
     };
-
     mutation.mutate(caseData);
   };
 
@@ -106,7 +106,6 @@ export const SendTestPage = () => {
         </span>
       </h2>
       <hr className={styles.hre} />
-
       <h1 className={styles.name}>Заполните форму</h1>
       <form onSubmit={handleSubmit}>
         <div className={styles.input_container}>
@@ -161,9 +160,9 @@ export const SendTestPage = () => {
           className={`${styles.submit_button} ${
             !isFormValid ? styles.disabled_button : ""
           }`}
-          disabled={!isFormValid}
+          disabled={!isFormValid || isSubmitting}
         >
-          Отправить
+          {isSubmitting ? "Отправка..." : "Отправить"}
         </button>
       </form>
     </>

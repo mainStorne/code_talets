@@ -13,6 +13,7 @@ import { AnswerTest } from "../../pages/questionnaire/ui/AnswerTest";
 import { ThanksPage } from "../../pages/thanksPage";
 import { SendTestPage } from "../../pages/sendTestPage";
 import { SendAnswer } from "../../pages/sendAnswer/ui/sendAnswer";
+import { GetFullInfo } from "../../pages/getFullInfo";
 
 export const AppRouter = () => {
   const routers = createRoutesFromElements(
@@ -24,6 +25,7 @@ export const AppRouter = () => {
       <Route path="/thank_you" element={<ThanksPage />} />
       <Route path="/send_answer/:id" element={<SendAnswer />} />
       <Route path="/send_test/:id" element={<SendTestPage />} />
+      <Route path="/get_full" element={<GetFullInfo />} />
       {/* <Route path="/send_test" element={<SendTestPage />} /> */}
     </Route>
   );

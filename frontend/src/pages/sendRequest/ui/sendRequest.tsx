@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import styles from "./sendRequests.module.scss";
 import { postResumes } from "../../../shared/api/resumes";
 import { UserData } from "../../../shared/api/resumes/resumes";
@@ -21,17 +23,9 @@ interface PostResumesResponse {
 export const SendRequest = () => {
   const location = useLocation();
   const nextParam = new URLSearchParams(location.search).get("next");
-  const [fullName, setFullName] = useState("");
-  const [age, setAge] = useState<number | undefined>(undefined);
-  const [city, setCity] = useState("");
-  const [workExperience, setWorkExperience] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isFormValid, setIsFormValid] = useState(false);
-  const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const mutation = useMutation<PostResumesResponse, Error, UserData>({
@@ -41,8 +35,7 @@ export const SendRequest = () => {
     },
     onSuccess: (response) => {
       console.log("Данные успешно отправлены:", response);
-      setSuccessMessage("Данные успешно отправлены!");
-      setErrorMessage("");
+      setIsSubmitting(false);
       if (nextParam) {
         navigate("/welcome_test");
       } else {
@@ -51,50 +44,50 @@ export const SendRequest = () => {
     },
     onError: (error) => {
       console.error("Ошибка при отправке данных:", error);
-      setErrorMessage("Произошла ошибка. Попробуйте снова.");
-      setSuccessMessage("");
+      setIsSubmitting(false);
     },
   });
 
-  useEffect(() => {
-    const isValid =
-      fullName.trim().split(" ").length === 3 &&
-      age !== undefined &&
-      age > 0 &&
-      city.trim().length > 0 &&
-      workExperience.trim().length > 0 &&
-      phoneNumber.trim().length > 0 &&
-      file !== null &&
-      isCheckboxChecked;
-
-    setIsFormValid(isValid);
-  }, [
-    fullName,
-    age,
-    city,
-    workExperience,
-    phoneNumber,
-    file,
-    isCheckboxChecked,
-  ]);
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const [first_name, middle_name, last_name] = fullName.split(" ");
-
-    const userData: UserData = {
-      first_name,
-      middle_name,
-      last_name,
-      age,
-      city,
-      work_experience: workExperience,
-      phone_number: phoneNumber,
-    };
-
-    mutation.mutate(userData);
-  };
+  const formik = useFormik({
+    initialValues: {
+      fullName: "",
+      age: "",
+      city: "",
+      workExperience: "",
+      phoneNumber: "",
+      checkbox: false,
+    },
+    validationSchema: Yup.object({
+      fullName: Yup.string()
+        .matches(/^[a-zA-Zа-яА-Я\s]+$/, "Введите корректные ФИО")
+        .required("Обязательное поле"),
+      age: Yup.number()
+        .required("Обязательное поле")
+        .positive("Возраст должен быть положительным числом")
+        .integer("Возраст должен быть целым числом"),
+      city: Yup.string().required("Обязательное поле"),
+      workExperience: Yup.string().required("Обязательное поле"),
+      phoneNumber: Yup.string().required("Обязательное поле"),
+      checkbox: Yup.boolean().oneOf(
+        [true],
+        "Вы должны принять политику обработки персональных данных"
+      ),
+    }),
+    onSubmit: (values) => {
+      setIsSubmitting(true);
+      const [first_name, middle_name, last_name] = values.fullName.split(" ");
+      const userData: UserData = {
+        first_name,
+        middle_name,
+        last_name,
+        age: Number(values.age),
+        city: values.city,
+        work_experience: values.workExperience,
+        phone_number: values.phoneNumber,
+      };
+      mutation.mutate(userData);
+    },
+  });
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -104,28 +97,23 @@ export const SendRequest = () => {
     }
   };
 
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsCheckboxChecked(event.target.checked);
-  };
-
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={formik.handleSubmit}>
       <h1 className={styles.title}>Заполните форму</h1>
       <div className={styles.input_container}>
-        <label htmlFor="name">
+        <label htmlFor="fullName">
           Как вас зовут (ФИО) <span>*</span>
         </label>
         <input
           className={styles.input}
           placeholder="Иванов Иван Иванович"
           type="text"
-          value={fullName}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setFullName(e.target.value)
-          }
-          required
+          id="fullName"
+          {...formik.getFieldProps("fullName")}
         />
-        <label htmlFor="name"></label>
+        {formik.touched.fullName && formik.errors.fullName ? (
+          <div className={styles.error}>{formik.errors.fullName}</div>
+        ) : null}
       </div>
       <div className={styles.input_container}>
         <label htmlFor="age">
@@ -134,12 +122,12 @@ export const SendRequest = () => {
         <input
           className={styles.input}
           type="number"
-          value={age}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setAge(Number(e.target.value))
-          }
-          required
+          id="age"
+          {...formik.getFieldProps("age")}
         />
+        {formik.touched.age && formik.errors.age ? (
+          <div className={styles.error}>{formik.errors.age}</div>
+        ) : null}
       </div>
       <div className={styles.input_container}>
         <label htmlFor="city">
@@ -148,26 +136,26 @@ export const SendRequest = () => {
         <input
           className={styles.input}
           type="text"
-          value={city}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setCity(e.target.value)
-          }
-          required
+          id="city"
+          {...formik.getFieldProps("city")}
         />
+        {formik.touched.city && formik.errors.city ? (
+          <div className={styles.error}>{formik.errors.city}</div>
+        ) : null}
       </div>
       <div className={styles.input_container}>
-        <label htmlFor="phone">
+        <label htmlFor="phoneNumber">
           Номер телефона <span>*</span>
         </label>
         <InputMask
           className={styles.input}
           mask="+7 (999) 999-99-99"
-          value={phoneNumber}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setPhoneNumber(e.target.value)
-          }
-          required
+          id="phoneNumber"
+          {...formik.getFieldProps("phoneNumber")}
         />
+        {formik.touched.phoneNumber && formik.errors.phoneNumber ? (
+          <div className={styles.error}>{formik.errors.phoneNumber}</div>
+        ) : null}
       </div>
       <div className={styles.input_container}>
         <label htmlFor="workExperience">
@@ -176,14 +164,13 @@ export const SendRequest = () => {
         <input
           className={styles.big_input}
           type="text"
-          value={workExperience}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setWorkExperience(e.target.value)
-          }
-          required
+          id="workExperience"
+          {...formik.getFieldProps("workExperience")}
         />
+        {formik.touched.workExperience && formik.errors.workExperience ? (
+          <div className={styles.error}>{formik.errors.workExperience}</div>
+        ) : null}
       </div>
-
       <div className={styles.input_container}>
         <label htmlFor="resume">
           Резюме <span>*</span>
@@ -198,22 +185,19 @@ export const SendRequest = () => {
           onChange={handleFileChange}
         />
       </div>
-
       <h2 className={styles.sopd}>
         Максимальный размер файла - 50МБ. Допустимые форматы - txt, pdf, doc,
         docx, xls, xlsx, ppt, pptx, bmp, gif, jpg, jpeg, png, zip, rar.
       </h2>
       <label
         className={`${styles.custom_checkbox} ${
-          !isFormValid ? styles.inactive_checkbox : ""
+          !formik.values.checkbox ? styles.inactive_checkbox : ""
         }`}
       >
         <input
           type="checkbox"
-          name="checkbox"
-          required
-          checked={isCheckboxChecked}
-          onChange={handleCheckboxChange}
+          id="checkbox"
+          {...formik.getFieldProps("checkbox")}
         />
         <span></span>
         <h3 className={styles.checkbox_text}>
@@ -221,18 +205,26 @@ export const SendRequest = () => {
           обработку своих данных
         </h3>
       </label>
-
-      {successMessage && <p className={styles.success}>{successMessage}</p>}
-      {errorMessage && <p className={styles.error}>{errorMessage}</p>}
+      {formik.errors.checkbox && formik.touched.checkbox ? (
+        <div className={styles.error}>{formik.errors.checkbox}</div>
+      ) : null}
       <button
         type="submit"
         className={`${styles.submit_button} ${
-          !isFormValid ? styles.inactive_button : ""
+          !formik.isValid || isSubmitting ? styles.inactive_button : ""
         }`}
-        disabled={!isFormValid}
+        disabled={!formik.isValid || isSubmitting}
       >
-        Отправить
+        {isSubmitting ? "Отправка..." : "Отправить"}
       </button>
+      {mutation.isError && (
+        <div className={styles.error}>
+          Произошла ошибка: {mutation.error?.message}
+        </div>
+      )}
+      {mutation.isSuccess && (
+        <div className={styles.success}>Данные успешно отправлены!</div>
+      )}
     </form>
   );
 };
