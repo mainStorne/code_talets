@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import CircleToggle from "../../questionnaire/ui/circleToggle/CircleToggle";
 import styles from "./getfullinfo.module.scss";
 import { getFull } from "../../../shared/api/getFull";
@@ -8,8 +8,10 @@ import { patchUser } from "../../../shared/api/patchUser/patchUser";
 
 export const GetFullInfo = () => {
   const [selectedOption, setSelectedOption] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { id } = useParams<{ id: string }>();
   const initData = window.Telegram.WebApp.initData;
+  const navigate = useNavigate();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["userCase", id],
@@ -39,10 +41,13 @@ export const GetFullInfo = () => {
     },
     onSuccess: () => {
       alert("Статус обновлен успешно!");
+      setIsSubmitting(false);
+      navigate("/thank_you"); // Перенаправление после успешного обновления
     },
     onError: (error) => {
       console.error("Ошибка обновления статуса:", error);
       alert("Ошибка обновления статуса.");
+      setIsSubmitting(false);
     },
   });
 
@@ -57,6 +62,7 @@ export const GetFullInfo = () => {
       selectedOption
     );
     if (selectedOption) {
+      setIsSubmitting(true);
       mutation.mutate(selectedOption);
     } else {
       console.error("Не выбран статус для отправки");
@@ -102,17 +108,17 @@ export const GetFullInfo = () => {
       <hr className={styles.hre} />
       <h1 className={styles.name}>Как вам кандидат?</h1>
       <CircleToggle
-        text="хороший кандидат"
+        text="Хороший кандидат"
         isFilled={selectedOption === "хороший кандидат"}
         onSelect={handleSelect}
       />
       <CircleToggle
-        text="отличный"
-        isFilled={selectedOption === "отличный"}
+        text="Отличный кандидат"
+        isFilled={selectedOption === "отличный кандидат"}
         onSelect={handleSelect}
       />
       <CircleToggle
-        text="не подходит"
+        text="Не подходит"
         isFilled={selectedOption === "не подходит"}
         onSelect={handleSelect}
       />
@@ -120,8 +126,9 @@ export const GetFullInfo = () => {
         className={styles.submit_button}
         type="button"
         onClick={handleSubmit}
+        disabled={isSubmitting}
       >
-        Отправить
+        {isSubmitting ? "Отправка..." : "Отправить"}
       </button>
     </>
   );
