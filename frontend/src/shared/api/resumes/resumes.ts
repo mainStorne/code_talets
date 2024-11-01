@@ -33,11 +33,9 @@ export const uploadFile = async (file: File, initData: string) => {
 export const postResumes = async (
   userData: UserData,
   file?: File,
-  sendToAdmin: boolean = false
+  sendToAdmin: boolean = true
 ) => {
   const initData = window.Telegram.WebApp.initData;
-
-  // Instead of requesting the phone number from Telegram, assume it's provided directly in userData
 
   try {
     const requestBody = {
