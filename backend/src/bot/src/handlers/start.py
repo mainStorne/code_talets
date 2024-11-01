@@ -66,11 +66,17 @@ async def get_cantacts(callback_query: CallbackQuery):
             f"Опыт работы: {user.work_experience}\n" + \
             f"Возраст: {user.age}\n" + \
             f"Номер телефона: {user.phone_number}\n\n"
-        doc = URLInputFile(settings.DOMAIN_URL + '' + user.resume.resume_url, filename='Резюме')
-        await callback_query.bot.send_message(callback_query.from_user.id,
-                                              text=text,
-                                              )
-        await callback_query.bot.send_document(callback_query.from_user.id, doc)
+        if user.resume is None:
+            await callback_query.bot.send_message(callback_query.from_user.id,
+                                                  text=text,
+                                                  )
+        else:
+            await callback_query.bot.send_message(callback_query.from_user.id,
+                                                  text=text,
+                                                  )
+            doc = URLInputFile(settings.DOMAIN_URL + '' + user.resume.resume_url, filename='Резюме')
+
+            await callback_query.bot.send_document(callback_query.from_user.id, doc)
 
     logging.info('get contacts')
 
