@@ -1,58 +1,57 @@
-.divForCountOfQuestion{
-	width: 26px;
-	height: 14px;
-	margin-top: 40px;
-	margin-left: 79vw;
+.divForCountOfQuestion {
+  width: 26px;
+  height: 14px;
+  margin-top: 40px;
+  margin-left: 79vw;
 }
 
-.hr{
-	width: 94%;
-	height: 1px;
-	color: rgba(147, 143, 240, 1);
-	margin-left: 10px;
-	margin-top: 10px;
+.hr {
+  width: 94%;
+  height: 1px;
+  color: rgba(147, 143, 240, 1);
+  margin-left: 10px;
+  margin-top: 10px;
 }
 
-.divForAnswer{
-	margin: 15px;
-	margin-top: 30px;
+.divForAnswer {
+  margin: 15px;
+  margin-top: 30px;
 }
 
-.buttonContainer{
-	position: fixed;
+.buttonContainer {
+  position: fixed;
   bottom: 15px;
   left: 52%;
   transform: translateX(-50%);
   display: flex;
   gap: 14px;
   margin-left: 0;
-	width: 87%;
+  width: 87%;
 }
 
-.prevButton{
-	width: 61px;
-	height: 61px;
+.prevButton {
+  width: 61px;
+  height: 61px;
 }
 
-.nextButtonSolo{
-	width: 307px;
-	height: 61px;
+.nextButtonSolo {
+  width: 307px;
+  height: 61px;
 }
 
-.nextButton{
-	width: 365px;
-	height: 65;
+.nextButton {
+  width: 365px;
+  height: 65;
 }
-
 
 @media (max-width: 373px) {
-	.buttonContainer {
-		bottom: 10px;
-	}
+  .buttonContainer {
+    bottom: 10px;
+  }
 }
 
 @media (max-width: 361px) {
-	.buttonContainer {
-		bottom: 0px;
-	}
+  .buttonContainer {
+    bottom: 0px;
+  }
 }

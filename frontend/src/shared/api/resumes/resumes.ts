@@ -36,7 +36,7 @@ export const postResumes = async (
             phone_number: userData.phone_number,
           }),
         ],
-        { type: "application/json" }
+        { type: "multipart/form-data" }
       )
     );
 
