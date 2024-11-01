@@ -20,14 +20,20 @@ export const GetFullInfo = () => {
 
   const mutation = useMutation({
     mutationFn: async (updatedStatus: string) => {
-      console.log("Отправка запроса patchUser с данными:", {
-        status: updatedStatus,
-      });
       if (data && data.user) {
+        console.log("Отправка запроса patchUser с данными:", {
+          id: data.user.id,
+          status: updatedStatus,
+          initData,
+        });
         return await patchUser(
           data.user.id,
           { status: updatedStatus },
           initData
+        );
+      } else {
+        console.error(
+          "Данные пользователя отсутствуют, запрос не может быть отправлен"
         );
       }
     },
@@ -42,7 +48,7 @@ export const GetFullInfo = () => {
 
   const handleSelect = (text: string) => {
     setSelectedOption(text);
-    console.log("Выбранный вариант:", text); // Добавление логирования для проверки
+    console.log("Выбранный вариант:", text);
   };
 
   const handleSubmit = async () => {
@@ -50,7 +56,11 @@ export const GetFullInfo = () => {
       "Попытка отправки данных с выбранным вариантом:",
       selectedOption
     );
-    mutation.mutate(selectedOption);
+    if (selectedOption) {
+      mutation.mutate(selectedOption);
+    } else {
+      console.error("Не выбран статус для отправки");
+    }
   };
 
   if (isLoading) return <p>Загрузка данных...</p>;
@@ -92,17 +102,17 @@ export const GetFullInfo = () => {
       <hr className={styles.hre} />
       <h1 className={styles.name}>Как вам кандидат?</h1>
       <CircleToggle
-        text="Хороший"
+        text="хороший кандидат"
         isFilled={selectedOption === "хороший кандидат"}
         onSelect={handleSelect}
       />
       <CircleToggle
-        text="Отличный"
+        text="отличный"
         isFilled={selectedOption === "отличный"}
         onSelect={handleSelect}
       />
       <CircleToggle
-        text="Не подходит"
+        text="не подходит"
         isFilled={selectedOption === "не подходит"}
         onSelect={handleSelect}
       />
