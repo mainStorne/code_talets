@@ -93,17 +93,17 @@ export const GetFullInfo = () => {
       <h1 className={styles.name}>Как вам кандидат?</h1>
       <CircleToggle
         text="Хороший"
-        isFilled={selectedOption === "Хороший"}
+        isFilled={selectedOption === "хороший кандидат"}
         onSelect={handleSelect}
       />
       <CircleToggle
         text="Отличный"
-        isFilled={selectedOption === "Отличный"}
+        isFilled={selectedOption === "отличный"}
         onSelect={handleSelect}
       />
       <CircleToggle
         text="Не подходит"
-        isFilled={selectedOption === "Не подходит"}
+        isFilled={selectedOption === "не подходит"}
         onSelect={handleSelect}
       />
       <button
