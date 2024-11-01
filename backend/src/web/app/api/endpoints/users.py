@@ -113,10 +113,10 @@ def get_crud_router(manager: ModelManager, get_session, read_scheme: type[BaseMo
             ws = init_google_sheet()
             delete(user_count, ws)
 
-        try:
-            await asyncio.to_thread(_)
-        except Exception as e:
-            logging.error(exc_info=e, msg='')
+        # try:
+        #     aw/ait asyncio.to_thread(_)
+        # except Exception as e:
+        #     logging.error(exc_info=e, msg='')
         return
 
     # async def upload():

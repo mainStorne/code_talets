@@ -45,7 +45,7 @@ async def register(user: Annotated[BaseUser, Body(embed=True)],
     response = await m.create(session, user)
     link = f'https://t.me/{telegram.user.username}'
     junior_text = 'У этого кандитата не достаточно опыта, предлогаю на должность junior'
-    default_text = 'Ознакомьтесь с этим кондидатом:'
+    default_text = 'Ознакомьтесь с этим кандидатом:'
     try:
         if user.work_experience.strip().lower() == 'нет' or float(user.work_experience) <= 0.5:
             text = junior_text
