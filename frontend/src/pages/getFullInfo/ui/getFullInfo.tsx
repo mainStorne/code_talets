@@ -42,7 +42,7 @@ export const GetFullInfo = () => {
     onSuccess: () => {
       alert("Статус обновлен успешно!");
       setIsSubmitting(false);
-      navigate("/thank_you"); // Перенаправление после успешного обновления
+      navigate("/thank_you");
     },
     onError: (error) => {
       console.error("Ошибка обновления статуса:", error);
@@ -108,17 +108,17 @@ export const GetFullInfo = () => {
       <hr className={styles.hre} />
       <h1 className={styles.name}>Как вам кандидат?</h1>
       <CircleToggle
-        text="Хороший кандидат"
+        text="хороший кандидат"
         isFilled={selectedOption === "хороший кандидат"}
         onSelect={handleSelect}
       />
       <CircleToggle
-        text="Отличный кандидат"
+        text="отличный кандидат"
         isFilled={selectedOption === "отличный кандидат"}
         onSelect={handleSelect}
       />
       <CircleToggle
-        text="Не подходит"
+        text="не подходит"
         isFilled={selectedOption === "не подходит"}
         onSelect={handleSelect}
       />
