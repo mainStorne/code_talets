@@ -22,22 +22,18 @@ export const postResumes = async (
     const formData = new FormData();
     formData.append(
       "user",
-      new Blob(
-        [
-          JSON.stringify({
-            first_name: userData.first_name || "string",
-            middle_name: userData.middle_name || "string",
-            last_name: userData.last_name || "string",
-            created_at: new Date().toISOString(),
-            is_superuser: false,
-            age: userData.age || 18,
-            city: userData.city || "string",
-            work_experience: userData.work_experience || "string",
-            phone_number: userData.phone_number,
-          }),
-        ],
-        { type: "multipart/form-data" }
-      )
+
+      JSON.stringify({
+        first_name: userData.first_name || "string",
+        middle_name: userData.middle_name || "string",
+        last_name: userData.last_name || "string",
+        created_at: new Date().toISOString(),
+        is_superuser: false,
+        age: userData.age || 18,
+        city: userData.city || "string",
+        work_experience: userData.work_experience || "string",
+        phone_number: userData.phone_number,
+      })
     );
 
     if (file) {
